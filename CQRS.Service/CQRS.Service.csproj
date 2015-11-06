@@ -45,8 +45,11 @@
     <Compile Include="Commands\ChangeTaskStatusCommand.cs" />
     <Compile Include="ModuleInit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Queries\ByIdQuery.cs" />
     <Compile Include="Queries\TasksByStatusQuery.cs" />
+    <Compile Include="QueryHandlers\ProcessByIdQueryHandler.cs" />
     <Compile Include="QueryHandlers\TasksByStatusQueryHandler.cs" />
+    <Compile Include="QueryResults\ProcessByIdQueryResult.cs" />
     <Compile Include="QueryResults\TasksByStatusQueryResult.cs" />
   </ItemGroup>
   <ItemGroup>
