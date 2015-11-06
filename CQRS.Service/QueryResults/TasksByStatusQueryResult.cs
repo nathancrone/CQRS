@@ -7,7 +7,7 @@ namespace CQRS.Service.QueryResults
 {
     public class TasksByStatusQueryResult : IQueryResult
     {
-        public DateTime LastUpdateForAnyTask { get; set; }
+        public DateTime? LastUpdateForAnyTask { get; set; }
         public IEnumerable<Task> Tasks { get; set; }
     }
 }

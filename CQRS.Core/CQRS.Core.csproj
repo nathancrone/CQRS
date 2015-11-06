@@ -50,7 +50,24 @@
     <Compile Include="IQueryDispatcher.cs" />
     <Compile Include="IQueryHandler.cs" />
     <Compile Include="IQueryResult.cs" />
+    <Compile Include="Models\Action.cs" />
+    <Compile Include="Models\ActionTarget.cs" />
+    <Compile Include="Models\ActionType.cs" />
+    <Compile Include="Models\Activity.cs" />
+    <Compile Include="Models\ActivityTarget.cs" />
+    <Compile Include="Models\ActivityType.cs" />
+    <Compile Include="Models\Group.cs" />
+    <Compile Include="Models\Process.cs" />
+    <Compile Include="Models\Request.cs" />
+    <Compile Include="Models\RequestAction.cs" />
+    <Compile Include="Models\RequestData.cs" />
+    <Compile Include="Models\RequestNote.cs" />
+    <Compile Include="Models\State.cs" />
+    <Compile Include="Models\StateType.cs" />
+    <Compile Include="Models\Target.cs" />
     <Compile Include="Models\Task.cs" />
+    <Compile Include="Models\Transition.cs" />
+    <Compile Include="Models\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

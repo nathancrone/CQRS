@@ -53,6 +53,11 @@
     <Compile Include="EFContext.cs" />
     <Compile Include="GenericRepository.cs" />
     <Compile Include="IContext.cs" />
+    <Compile Include="Migrations\201511062106145_InitialCreate.cs" />
+    <Compile Include="Migrations\201511062106145_InitialCreate.Designer.cs">
+      <DependentUpon>201511062106145_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="ModuleInit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -65,6 +70,11 @@
       <Project>{26a1cd52-0a46-4ecd-bdbc-fb6a2406d441}</Project>
       <Name>CQRS.Core</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201511062106145_InitialCreate.resx">
+      <DependentUpon>201511062106145_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
