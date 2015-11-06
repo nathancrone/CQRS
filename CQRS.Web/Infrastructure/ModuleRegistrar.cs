@@ -1,4 +1,6 @@
-﻿using CQRS.Core;
+﻿using System;
+using System.Collections.Generic;
+using CQRS.Core;
 using Microsoft.Practices.Unity;
 
 namespace CQRS.Web.Infrastructure

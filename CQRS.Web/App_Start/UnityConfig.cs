@@ -20,13 +20,13 @@ namespace CQRS.Web
 
             // e.g. container.RegisterType<ITestService, TestService>();
 
-            //container.RegisterType<ICommandDispatcher, CommandDispatcher>();
-            //container.RegisterType<IQueryDispatcher, QueryDispatcher>();
+            container.RegisterType<ICommandDispatcher, CommandDispatcher>();
+            container.RegisterType<IQueryDispatcher, QueryDispatcher>();
 
-            container.RegisterTypes(
-                AllClasses.FromLoadedAssemblies().Where(x => !x.GetInterfaces().Contains(typeof(IModuleInit))),
-                WithMappings.FromMatchingInterface,
-                WithName.Default);
+            //container.RegisterTypes(
+            //    AllClasses.FromLoadedAssemblies().Where(x => !x.GetInterfaces().Contains(typeof(IModuleInit))),
+            //    WithMappings.FromMatchingInterface,
+            //    WithName.Default);
 
             ModuleLoader.LoadContainer(container, ".\\bin", "C*.dll");
 
