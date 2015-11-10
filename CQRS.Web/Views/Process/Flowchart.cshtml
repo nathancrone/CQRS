@@ -1,0 +1,267 @@
+﻿@{ 
+    Layout = null;
+}
+
+@model CQRS.Service.QueryResults.ProcessByIdQueryResult
+
+<!DOCTYPE html>
+<html style="height: 100%">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="~/Content/flowchart.css" rel="stylesheet" type="text/css" />
+    <title></title>
+</head>
+<body ng-app="app"
+      ng-controller="AppCtrl"
+      mouse-capture
+      ng-keydown="keyDown($event)"
+      ng-keyup="keyUp($event)" style="width: 100%; height: 100%;">
+
+
+
+
+    <button ng-click="addNewNode()"
+            title="Add a new node to the chart">
+        Add Node
+    </button>
+    <button ng-click="addNewInputConnector()"
+            ng-disabled="chartViewModel.getSelectedNodes().length == 0"
+            title="Add a new input connector to the selected node">
+        Add Input Connector
+    </button>
+    <button ng-click="addNewOutputConnector()"
+            ng-disabled="chartViewModel.getSelectedNodes().length == 0"
+            title="Add a new output connector to the selected node">
+        Add Output Connector
+    </button>
+    <button ng-click="deleteSelected()"
+            ng-disabled="chartViewModel.getSelectedNodes().length == 0 && chartViewModel.getSelectedConnections().length == 0"
+            title="Delete selected nodes and connections">
+        Delete Selected
+    </button>
+
+
+
+
+
+
+
+
+
+    <flow-chart style="margin: 5px; width: 100%; height: 100%;"
+                chart="chartViewModel">
+    </flow-chart>
+
+    @Html.ActionLink(" ", "JsonFlowchart", "Process", null, new { id = "jsonflowchart", @class = "hide" })
+
+    <script src="~/Scripts/jquery-1.11.3.min.js"></script>
+    <script src="~/Scripts/angular.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+
+    <script src="~/Scripts/flowchart/svg_class.js" type="text/javascript"></script>
+    <script src="~/Scripts/flowchart/mouse_capture_service.js" type="text/javascript"></script>
+    <script src="~/Scripts/flowchart/dragging_service.js" type="text/javascript"></script>
+    <script src="~/Scripts/flowchart/flowchart_viewmodel.js" type="text/javascript"></script>
+    <script src="~/Scripts/flowchart/flowchart_directive.js" type="text/javascript"></script>
+
+    <script>
+        //
+        // Define the 'app' module.
+        //
+        angular.module('app', ['flowChart', ])
+        .controller('AppCtrl', ['$scope', 'svcApp', function AppCtrl($scope, svcApp) {
+
+            //
+            // Code for the delete key.
+            //
+            var deleteKeyCode = 46;
+
+            //
+            // Code for control key.
+            //
+            var ctrlKeyCode = 65;
+
+            //
+            // Set to true when the ctrl key is down.
+            //
+            var ctrlDown = false;
+
+            //
+            // Code for A key.
+            //
+            var aKeyCode = 17;
+
+            //
+            // Code for esc key.
+            //
+            var escKeyCode = 27;
+
+            //
+            // Selects the next node id.
+            //
+            var nextNodeID = 10;
+
+            
+            svcApp.getFlowchart().then(function (data) {
+                $scope.chartViewModel = new flowchart.ChartViewModel(data);
+            }, function () { });
+
+            //
+            // Event handler for key-down on the flowchart.
+            //
+            $scope.keyDown = function (evt) {
+
+                if (evt.keyCode === ctrlKeyCode) {
+
+                    ctrlDown = true;
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                }
+            };
+
+            //
+            // Event handler for key-up on the flowchart.
+            //
+            $scope.keyUp = function (evt) {
+
+                if (evt.keyCode === deleteKeyCode) {
+                    //
+                    // Delete key.
+                    //
+                    $scope.chartViewModel.deleteSelected();
+                }
+
+                if (evt.keyCode == aKeyCode && ctrlDown) {
+                    //
+                    // Ctrl + A
+                    //
+                    $scope.chartViewModel.selectAll();
+                }
+
+                if (evt.keyCode == escKeyCode) {
+                    // Escape.
+                    $scope.chartViewModel.deselectAll();
+                }
+
+                if (evt.keyCode === ctrlKeyCode) {
+                    ctrlDown = false;
+
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                }
+            };
+
+            //
+            // Add a new node to the chart.
+            //
+            $scope.addNewNode = function () {
+
+                
+                var nodeName = prompt("Enter a node name:", "New node");
+                if (!nodeName) {
+                    return;
+                }
+
+                //
+                // Template for a new node.
+                //
+                var newNodeDataModel = {
+                    name: nodeName,
+                    id: nextNodeID++,
+                    x: 0,
+                    y: 0,
+                    inputConnectors: [
+                        {
+                            name: "X"
+                        },
+                        {
+                            name: "Y"
+                        },
+                        {
+                            name: "Z"
+                        }
+                    ],
+                    outputConnectors: [
+                        {
+                            name: "1"
+                        },
+                        {
+                            name: "2"
+                        },
+                        {
+                            name: "3"
+                        }
+                    ],
+                };
+                
+                
+                $scope.chartViewModel.addNode(newNodeDataModel);
+            };
+
+            //
+            // Add an input connector to selected nodes.
+            //
+            $scope.addNewInputConnector = function () {
+                var connectorName = prompt("Enter a connector name:", "New connector");
+                if (!connectorName) {
+                    return;
+                }
+
+                var selectedNodes = $scope.chartViewModel.getSelectedNodes();
+                for (var i = 0; i < selectedNodes.length; ++i) {
+                    var node = selectedNodes[i];
+                    node.addInputConnector({
+                        name: connectorName,
+                    });
+                }
+            };
+
+            //
+            // Add an output connector to selected nodes.
+            //
+            $scope.addNewOutputConnector = function () {
+                var connectorName = prompt("Enter a connector name:", "New connector");
+                if (!connectorName) {
+                    return;
+                }
+
+                var selectedNodes = $scope.chartViewModel.getSelectedNodes();
+                for (var i = 0; i < selectedNodes.length; ++i) {
+                    var node = selectedNodes[i];
+                    node.addOutputConnector({
+                        name: connectorName,
+                    });
+                }
+            };
+
+            //
+            // Delete selected nodes and connections.
+            //
+            $scope.deleteSelected = function () {
+
+                $scope.chartViewModel.deleteSelected();
+            };
+
+            //
+            // Create the view-model for the chart and attach to the scope.
+            //
+            //$scope.chartViewModel = new flowchart.ChartViewModel(chartDataModel);
+        }]);
+
+        angular.module('app').factory('svcApp', ['$http', function ($http) {
+            var _getFlowchart = function () {
+                return $http.get($("#jsonflowchart").attr("href") + "?id=1")
+                        .then(function (response) {
+                            return response.data;
+                        })
+            };
+            return {
+                getFlowchart: _getFlowchart
+            }
+        }]);
+    </script>
+</body>
+</html>
+
+

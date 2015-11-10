@@ -23,20 +23,27 @@ namespace CQRS.Repository
         public IList<T> Get(
             Expression<Func<T, bool>> filter = null,
             Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-            string includeProperties = "")
+            params Expression<Func<T, object>>[] includes)
         {
             IQueryable<T> query = _dbSet;
+
+            //_dbSet.Include()
 
             if (filter != null)
             {
                 query = query.Where(filter);
             }
 
-            foreach (var includeProperty in includeProperties.Split
-                (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+            if (includes != null)
             {
-                query = query.Include(includeProperty);
+                query = includes.Aggregate(query,
+                          (current, include) => current.Include(include));
             }
+            //foreach (var includeProperty in includeProperties.Split
+            //    (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+            //{
+            //    query = query.Include(includeProperty);
+            //}
 
             if (orderBy != null)
             {

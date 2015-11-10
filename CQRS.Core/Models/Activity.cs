@@ -10,10 +10,10 @@ namespace CQRS.Core.Models
         public string Name { get; set; }
         public string Description { get; set; }
 
-        public virtual Process Process { get; set; }
-        public virtual ActivityType ActivityType { get; set; }
+        public Process Process { get; set; }
+        public ActivityType ActivityType { get; set; }
 
-        public virtual ICollection<Transition> Transitions { get; set; }
-        public virtual ICollection<State> States { get; set; }
+        public ICollection<Transition> Transitions { get; set; }
+        public ICollection<State> States { get; set; }
     }
 }

@@ -7,6 +7,6 @@ namespace CQRS.Core.Models
         public int? StateTypeId { get; set; }
         public string Name { get; set; }
 
-        public virtual ICollection<State> States { get; set; }
+        public ICollection<State> States { get; set; }
     }
 }

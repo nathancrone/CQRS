@@ -4,16 +4,16 @@ namespace CQRS.Core.Models
 {
     public class Transition
     {
-        public int? TransitionId { get; set; }
+        public int TransitionId { get; set; }
         public int? ProcessId { get; set; }
         public int? CurrentStateId { get; set; }
         public int? NextStateId { get; set; }
 
-        public virtual Process Process { get; set; }
-        public virtual State CurrentState { get; set; }
-        public virtual State NextState { get; set; }
+        public Process Process { get; set; }
+        public State CurrentState { get; set; }
+        public State NextState { get; set; }
 
-        public virtual ICollection<Action> Actions { get; set; }
-        public virtual ICollection<Activity> Activities { get; set; }
+        public ICollection<Action> Actions { get; set; }
+        public ICollection<Activity> Activities { get; set; }
     }
 }

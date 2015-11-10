@@ -9,12 +9,17 @@ namespace CQRS.Core.Models
         public int? StateTypeId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
+        public int X { get; set; }
+        public int Y { get; set; }
 
-        public virtual Process Process { get; set; }
-        public virtual StateType StateType { get; set; }
+        public Process Process { get; set; }
+        public StateType StateType { get; set; }
 
-        public virtual ICollection<Transition> Transitions { get; set; }
-        public virtual ICollection<Action> Actions { get; set; }
-        public virtual ICollection<Activity> Activities { get; set; }
+        //public ICollection<Transition> Transitions { get; set; }
+        public ICollection<Transition> TransitionsFrom { get; set; }
+        public ICollection<Transition> TransitionsTo { get; set; }
+
+        public ICollection<Action> Actions { get; set; }
+        public ICollection<Activity> Activities { get; set; }
     }
 }

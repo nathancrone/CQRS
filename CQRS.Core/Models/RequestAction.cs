@@ -13,8 +13,8 @@ namespace CQRS.Core.Models
         public bool IsActive { get; set; }
         public bool IsComplete { get; set; }
 
-        public virtual Request Request { get; set; }
-        public virtual Action Action { get; set; }
-        public virtual Transition Transition { get; set; }
+        public Request Request { get; set; }
+        public Action Action { get; set; }
+        public Transition Transition { get; set; }
     }
 }

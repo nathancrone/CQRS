@@ -11,6 +11,7 @@ namespace CQRS.Repository
         {
             registrar.RegisterType<IContext, EFContext>();
             registrar.RegisterType<IGenericRepository<Task>, GenericRepository<Task>>();
+            registrar.RegisterType<IGenericRepository<Process>, GenericRepository<Process>>();
         }
     }
 }

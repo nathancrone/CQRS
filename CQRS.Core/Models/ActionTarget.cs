@@ -9,8 +9,8 @@ namespace CQRS.Core.Models
         public int? TargetId { get; set; }
         public int? GroupId { get; set; }
 
-        public virtual Action Action { get; set; }
-        public virtual Target Target { get; set; }
-        public virtual Group Group { get; set; }
+        public Action Action { get; set; }
+        public Target Target { get; set; }
+        public Group Group { get; set; }
     }
 }

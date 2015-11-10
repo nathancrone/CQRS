@@ -10,7 +10,7 @@ namespace CQRS.Core
         IList<T> Get(
             Expression<Func<T, bool>> filter = null,
             Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-            string includeProperties = "");
+            params Expression<Func<T, object>>[] includes);
 
         //Query Methods
         T FindById(int id);

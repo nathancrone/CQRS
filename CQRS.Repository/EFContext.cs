@@ -111,6 +111,10 @@ namespace CQRS.Repository
                 .Property(x => x.RequestActionId)
                 .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 
+
+            
+
+
             //for each property in an entity, define the attributes of the corresponding column (string length, nullable, etc).
             //process
             modelBuilder.Entity<Process>()
@@ -271,14 +275,16 @@ namespace CQRS.Repository
                 .WithRequired(x => x.StateType);
 
             modelBuilder.Entity<State>()
-                .HasMany(x => x.Transitions)
+                .HasMany(x => x.TransitionsFrom)
                 .WithRequired(x => x.CurrentState)
-                .HasForeignKey(x => x.CurrentStateId);
+                .HasForeignKey(x => x.CurrentStateId)
+                .WillCascadeOnDelete(false);
 
             modelBuilder.Entity<State>()
-                .HasMany(x => x.Transitions)
+                .HasMany(x => x.TransitionsTo)
                 .WithRequired(x => x.NextState)
-                .HasForeignKey(x => x.NextStateId);
+                .HasForeignKey(x => x.NextStateId)
+                .WillCascadeOnDelete(false);
 
             modelBuilder.Entity<ActionType>()
                 .HasMany(x => x.Actions)

@@ -7,7 +7,7 @@
         public int? UserId { get; set; }
         public string Note { get; set; }
 
-        public virtual Request Request { get; set; }
-        public virtual User User { get; set; }
+        public Request Request { get; set; }
+        public User User { get; set; }
     }
 }

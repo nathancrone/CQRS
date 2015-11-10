@@ -14,6 +14,7 @@ namespace CQRS.Service
         public void Initialize(IModuleRegistrar registrar)
         {
             registrar.RegisterType<IQueryHandler<TasksByStatusQuery, TasksByStatusQueryResult>, TasksByStatusQueryHandler>();
+            registrar.RegisterType<IQueryHandler<ByIdQuery, ProcessByIdQueryResult>, ProcessByIdQueryHandler>();
         }
     }
 }

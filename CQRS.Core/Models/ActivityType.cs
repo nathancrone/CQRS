@@ -7,6 +7,6 @@ namespace CQRS.Core.Models
         public int? ActivityTypeId { get; set; }
         public string Name { get; set; }
 
-        public virtual ICollection<Activity> Activities { get; set; }
+        public ICollection<Activity> Activities { get; set; }
     }
 }

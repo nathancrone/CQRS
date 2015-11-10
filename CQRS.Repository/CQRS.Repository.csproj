@@ -53,9 +53,9 @@
     <Compile Include="EFContext.cs" />
     <Compile Include="GenericRepository.cs" />
     <Compile Include="IContext.cs" />
-    <Compile Include="Migrations\201511062106145_InitialCreate.cs" />
-    <Compile Include="Migrations\201511062106145_InitialCreate.Designer.cs">
-      <DependentUpon>201511062106145_InitialCreate.cs</DependentUpon>
+    <Compile Include="Migrations\201511102321455_InitialCreate.cs" />
+    <Compile Include="Migrations\201511102321455_InitialCreate.Designer.cs">
+      <DependentUpon>201511102321455_InitialCreate.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="ModuleInit.cs" />
@@ -72,8 +72,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201511062106145_InitialCreate.resx">
-      <DependentUpon>201511062106145_InitialCreate.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201511102321455_InitialCreate.resx">
+      <DependentUpon>201511102321455_InitialCreate.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -10,6 +10,6 @@ namespace CQRS.Core.Models
         public string Name { get; set; }
         public string Value { get; set; }
 
-        public virtual Request Request { get; set; }
+        public Request Request { get; set; }
     }
 }
