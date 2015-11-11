@@ -5,10 +5,12 @@
 @model CQRS.Service.QueryResults.ProcessByIdQueryResult
 
 <!DOCTYPE html>
-<html style="height: 100%">
+<html>
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/dashboard.css" rel="stylesheet" type="text/css" />
     <link href="~/Content/flowchart.css" rel="stylesheet" type="text/css" />
     <title></title>
 </head>
@@ -16,42 +18,76 @@
       ng-controller="AppCtrl"
       mouse-capture
       ng-keydown="keyDown($event)"
-      ng-keyup="keyUp($event)" style="width: 100%; height: 100%;">
+      ng-keyup="keyUp($event)">
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Flowchart Demo</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#">Link 1</a></li>
+                    <li><a href="#">Link 2</a></li>
+                    <li><a href="#">Link 3</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3 col-md-2 sidebar">
+
+                <ul class="nav nav-sidebar">
+                    <li><a href="#" ng-click="addNewNode()">Add a new state</a></li>
+                    <li><a href="#" ng-click="deleteSelected()">Delete state</a></li>
+                </ul>
+
+                @*only displayed when nothing but exactly one transition is selected*@
+                <ul class="nav nav-sidebar">
+                    <li><a href="#">Add action...</a></li>
+                </ul>
+
+                @*only displayed when nothing but exactly two states are selected*@
+                <ul class="nav nav-sidebar">
+                    <li><a href="#">Add transition...</a></li>
+                </ul>
+
+            </div>
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" style="height: 1000px;">
+                <flow-chart style="width: 100%; height: 100%;" chart="chartViewModel"></flow-chart>
+                <textarea style="width: 100%; height: 100%;" chart-json-edit="" view-model="chartViewModel" class="ng-isolate-scope"></textarea>
+            </div>
+        </div>
+    </div>
 
 
-
-
-    <button ng-click="addNewNode()"
-            title="Add a new node to the chart">
-        Add Node
-    </button>
-    <button ng-click="addNewInputConnector()"
-            ng-disabled="chartViewModel.getSelectedNodes().length == 0"
-            title="Add a new input connector to the selected node">
-        Add Input Connector
-    </button>
-    <button ng-click="addNewOutputConnector()"
-            ng-disabled="chartViewModel.getSelectedNodes().length == 0"
-            title="Add a new output connector to the selected node">
-        Add Output Connector
-    </button>
-    <button ng-click="deleteSelected()"
-            ng-disabled="chartViewModel.getSelectedNodes().length == 0 && chartViewModel.getSelectedConnections().length == 0"
-            title="Delete selected nodes and connections">
-        Delete Selected
-    </button>
-
-
-
-
-
-
-
-
-
-    <flow-chart style="margin: 5px; width: 100%; height: 100%;"
-                chart="chartViewModel">
-    </flow-chart>
+    @*<button ng-click="addNewNode()"
+                title="Add a new node to the chart">
+            Add Node
+        </button>
+        <button ng-click="addNewInputConnector()"
+                ng-disabled="chartViewModel.getSelectedNodes().length == 0"
+                title="Add a new input connector to the selected node">
+            Add Input Connector
+        </button>
+        <button ng-click="addNewOutputConnector()"
+                ng-disabled="chartViewModel.getSelectedNodes().length == 0"
+                title="Add a new output connector to the selected node">
+            Add Output Connector
+        </button>
+        <button ng-click="deleteSelected()"
+                ng-disabled="chartViewModel.getSelectedNodes().length == 0 && chartViewModel.getSelectedConnections().length == 0"
+                title="Delete selected nodes and connections">
+            Delete Selected
+        </button>*@
 
     @Html.ActionLink(" ", "JsonFlowchart", "Process", null, new { id = "jsonflowchart", @class = "hide" })
 
@@ -102,7 +138,7 @@
             //
             var nextNodeID = 10;
 
-            
+
             svcApp.getFlowchart().then(function (data) {
                 $scope.chartViewModel = new flowchart.ChartViewModel(data);
             }, function () { });
@@ -157,7 +193,7 @@
             //
             $scope.addNewNode = function () {
 
-                
+
                 var nodeName = prompt("Enter a node name:", "New node");
                 if (!nodeName) {
                     return;
@@ -194,8 +230,8 @@
                         }
                     ],
                 };
-                
-                
+
+
                 $scope.chartViewModel.addNode(newNodeDataModel);
             };
 
@@ -262,6 +298,7 @@
         }]);
     </script>
 </body>
+
 </html>
 
 

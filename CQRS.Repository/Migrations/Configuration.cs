@@ -33,14 +33,14 @@ namespace CQRS.Repository.Migrations
 
             context.States.AddOrUpdate(
                 x => x.Name,
-                new State { StateId = 1, ProcessId = 1, StateTypeId = 1, Name = "Pending", Description = "Pending", X = 20, Y = 20 },
-                new State { StateId = 2, ProcessId = 1, StateTypeId = 2, Name = "Verified", Description = "Verified", X = 350, Y = 80 },
-                new State { StateId = 3, ProcessId = 1, StateTypeId = 2, Name = "Verified Ready", Description = "Verified Ready", X = 680, Y = 140 },
-                new State { StateId = 4, ProcessId = 1, StateTypeId = 2, Name = "Verified Submitted", Description = "Verified Submitted", X = 1010, Y = 165 },
-                new State { StateId = 5, ProcessId = 1, StateTypeId = 2, Name = "TMO Approved", Description = "TMO Approved", X = 1310, Y = 95 },
-                new State { StateId = 6, ProcessId = 1, StateTypeId = 2, Name = "TMO Rejected", Description = "TMO Rejected", X = 1310, Y = 250 },
-                new State { StateId = 7, ProcessId = 1, StateTypeId = 2, Name = "Approved", Description = "Approved", X = 1620, Y = 35 },
-                new State { StateId = 8, ProcessId = 1, StateTypeId = 2, Name = "Rejected", Description = "Rejected", X = 1620, Y = 170 }
+                new State { StateId = 1, ProcessId = 1, StateTypeId = 1, Name = "Pending", Description = "Pending", X = 34, Y = 34 },
+                new State { StateId = 2, ProcessId = 1, StateTypeId = 2, Name = "Verified", Description = "Verified", X = 221, Y = 82 },
+                new State { StateId = 3, ProcessId = 1, StateTypeId = 2, Name = "Verified Ready", Description = "Verified Ready", X = 421, Y = 145 },
+                new State { StateId = 4, ProcessId = 1, StateTypeId = 2, Name = "Verified Submitted", Description = "Verified Submitted", X = 644, Y = 198 },
+                new State { StateId = 5, ProcessId = 1, StateTypeId = 2, Name = "TMO Approved", Description = "TMO Approved", X = 854, Y = 122 },
+                new State { StateId = 6, ProcessId = 1, StateTypeId = 2, Name = "TMO Rejected", Description = "TMO Rejected", X = 854, Y = 280 },
+                new State { StateId = 7, ProcessId = 1, StateTypeId = 2, Name = "Approved", Description = "Approved", X = 1099, Y = 57 },
+                new State { StateId = 8, ProcessId = 1, StateTypeId = 2, Name = "Rejected", Description = "Rejected", X = 1099, Y = 189 }
                 );
 
             context.ActionTypes.AddOrUpdate(

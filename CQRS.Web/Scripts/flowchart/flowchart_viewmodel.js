@@ -12,7 +12,7 @@ var flowchart = {
 	//
 	// Width of a node.
 	//
-	flowchart.defaultNodeWidth = 250;
+	flowchart.defaultNodeWidth = 150;
 
 	//
 	// Amount of space reserved for displaying the node's name.
