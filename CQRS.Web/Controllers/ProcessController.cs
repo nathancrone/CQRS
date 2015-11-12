@@ -48,7 +48,9 @@ namespace CQRS.Web.Controllers
                 nodes = result.Process.States.Select(x => new
                 {
                     name = x.Name,
+                    description = x.Description, 
                     id = x.StateId,
+                    statetypeid = x.StateTypeId, 
                     x = x.X,
                     y = x.Y,
                     inputConnectors = x.TransitionsTo.Select(a => new { name = a.TransitionId }),

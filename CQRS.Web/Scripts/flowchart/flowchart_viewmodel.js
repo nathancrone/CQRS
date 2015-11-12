@@ -121,6 +121,17 @@ var flowchart = {
 			return this.data.name || "";
 		};
 
+	    //
+	    // Description of the node.
+	    //
+		this.description = function () {
+		    return this.data.description || "";
+		};
+
+		this.statetypeid = function () {
+		    return this.data.statetypeid;
+		}
+
 		//
 		// X coordinate of the node.
 		//
@@ -564,6 +575,18 @@ var flowchart = {
 			// Update the view model.
 			//
 			this.nodes.push(new flowchart.NodeViewModel(nodeDataModel));		
+		}
+
+	    //
+	    // Change details of a node
+	    //
+		this.changeNode = function (nodeDataModel) {
+		    var node = this.findNode(nodeDataModel.id);
+		    if (node) {
+		        node.data.name = nodeDataModel.name;
+		        node.data.x = nodeDataModel.x;
+		        node.data.y = nodeDataModel.y;
+		    }
 		}
 
 		//

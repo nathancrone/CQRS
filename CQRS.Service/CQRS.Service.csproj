@@ -41,9 +41,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommandHandlers\CreateStateCommandHandler.cs" />
+    <Compile Include="CommandHandlers\SaveStateCommandHandler.cs" />
     <Compile Include="CommandHandlers\ChangeTaskStatusCommandHandler.cs" />
-    <Compile Include="Commands\CreateStateCommand.cs" />
+    <Compile Include="Commands\SaveStateCommand.cs" />
     <Compile Include="Commands\ChangeTaskStatusCommand.cs" />
     <Compile Include="ModuleInit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -12,7 +12,7 @@ angular.module('flowChart', ['dragging'] )
   	templateUrl: "/Scripts/flowchart/flowchart_template.html",
   	replace: true,
   	scope: {
-  		chart: "=chart",
+  	    chart: "=chart",
   	},
 
   	//

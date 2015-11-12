@@ -19,7 +19,7 @@ namespace CQRS.Service
             registrar.RegisterType<IQueryHandler<ByIdQuery, ProcessByIdQueryResult>, ProcessByIdQueryHandler>();
             registrar.RegisterType<IQueryHandler<TransitionByCurrentAndNextStateQuery, TransitionByCurrentAndNextStateQueryResult>, TransitionByCurrentAndNextStateQueryHandler>();
 
-            registrar.RegisterType<ICommandHandler<CreateStateCommand>, CreateStateCommandHandler>();
+            registrar.RegisterType<ICommandHandler<SaveStateCommand>, SaveStateCommandHandler>();
         }
     }
 }

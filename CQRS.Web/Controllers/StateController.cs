@@ -22,11 +22,11 @@ namespace CQRS.Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult JsonCreate(State s)
+        public ActionResult JsonSave(State s)
         {
-            var command = new CreateStateCommand() { State = s };
-            _commandDispatcher.Dispatch<CreateStateCommand>(command);
-            return Content(JsonConvert.SerializeObject(command.State.StateId), "application/json");
+            var command = new SaveStateCommand() { State = s };
+            _commandDispatcher.Dispatch<SaveStateCommand>(command);
+            return Content(JsonConvert.SerializeObject(command.State), "application/json");
         }
     }
 }

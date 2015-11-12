@@ -6,22 +6,30 @@ using CQRS.Service.Commands;
 
 namespace CQRS.Service.CommandHandlers
 {
-    public class CreateStateCommandHandler : ICommandHandler<CreateStateCommand>
+    public class SaveStateCommandHandler : ICommandHandler<SaveStateCommand>
     {
         private readonly IGenericRepository<State> _stateRepository;
 
-        public CreateStateCommandHandler(IGenericRepository<State> stateRepository)
+        public SaveStateCommandHandler(IGenericRepository<State> stateRepository)
         {
             if (stateRepository == null) { throw new ArgumentNullException("stateRepository"); }
             _stateRepository = stateRepository;
         }
 
-        public void Execute(CreateStateCommand command)
+        public void Execute(SaveStateCommand command)
         {
             if (command == null) { throw new ArgumentNullException("command"); }
             if (command.State == null) { throw new ArgumentException("State is not specified", "command"); }
             
-            _stateRepository.Insert(command.State);
+            if (command.State.StateId <= 0)
+            {
+                _stateRepository.Insert(command.State);
+            }
+            else
+            {
+                _stateRepository.Update(command.State);
+            }
+            
             _stateRepository.Save();
         }
 

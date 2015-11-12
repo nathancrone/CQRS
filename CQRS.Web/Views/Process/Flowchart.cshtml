@@ -51,8 +51,9 @@
                     <h3>States...</h3>
                     <ul class="nav nav-sidebar">
                         @*<li><a href="#" ng-click="addNewNode()">Add a new state</a></li>*@
-                        <li><a href="#" ng-click="stateModal()">Add a new state</a></li>
-                        <li><a href="#" ng-click="deleteSelected()">Delete state</a></li>
+                        <li><a href="#" ng-click="stateAdd()">Add a new state</a></li>
+                        <li ng-show="oneNodeSelected()"><a href="#" ng-click="stateUpdate()">Edit state</a></li>
+                        <li ng-show="oneNodeSelected()"><a href="#" ng-click="deleteSelected()">Delete state</a></li>
                     </ul>
 
                     @*only displayed when exactly two states are selected*@
@@ -80,19 +81,28 @@
             </div>
         </div>
 
-        <script type="text/ng-template" id="stateForm.html">
+        <script type="text/ng-template" id="stateModal.html">
             <div class="modal-header">
-                <h3 class="modal-title">I'm a modal!</h3>
+                <h3 class="modal-title" ng-show="selectedState.StateId <= 0">Add State</h3>
+                <h3 class="modal-title" ng-show="selectedState.StateId > 0">Update State</h3>
             </div>
             <div class="modal-body">
-                body goes here.
+                <form role="form">
+                    <div class="form-group">
+                        <label for="Name">State Name:</label>
+                        <input type="text" class="form-control" id="Name" ng-model="selectedState.Name">
+                    </div>
+                    <div class="form-group">
+                        <label for="Description">Description:</label>
+                        <input type="text" class="form-control" id="Description" ng-model="selectedState.Description">
+                    </div>
+                </form>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-primary" type="button" ng-click="ok()">OK</button>
                 <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
             </div>
         </script>
-
 
     </div>
 
@@ -120,7 +130,7 @@
 
     @Html.ActionLink(" ", "JsonFlowchart", "Process", null, new { id = "process_jsonflowchart", @class = "hide" })
     @Html.ActionLink(" ", "JsonByCurrentAndNextState", "Transition", null, new { id = "transition_jsonbycurrentandnextstate", @class = "hide" })
-    @Html.ActionLink(" ", "JsonCreate", "State", null, new { id = "state_jsoncreate", @class = "hide" })
+    @Html.ActionLink(" ", "JsonSave", "State", null, new { id = "state_jsonsave", @class = "hide" })
 
     <script src="~/Scripts/jquery-1.11.3.min.js"></script>
     <script src="~/Scripts/angular.min.js"></script>
@@ -145,24 +155,87 @@
         angular.module('app').controller('AppCtrl', ['$scope', '$uibModal', 'svcApp', function AppCtrl($scope, $uibModal, svcApp) {
 
             $scope.chartViewModel = null;
+            $scope.selectedState = null;
             $scope.selectedTransition = null;
 
+            $scope.stateAdd = function () {
 
-            $scope.stateModal = function () {
+                $scope.selectedState = {
+                    StateId: 0,
+                    ProcessId: 1,
+                    StateTypeId: 1,
+                    Name: '',
+                    Description: 'blah',
+                    X: 0,
+                    Y: 0
+                }
+
+                stateModal();
+            };
+
+            $scope.stateUpdate = function () {
+
+                if ($scope.oneNodeSelected()) {
+
+                    var node = $scope.chartViewModel.getSelectedNodes()[0].data;
+                    $scope.selectedState = {
+                        StateId: node.id,
+                        ProcessId: 1,
+                        StateTypeId: node.statetypeid,
+                        Name: node.name,
+                        Description: node.description,
+                        X: node.x,
+                        Y: node.y
+                    }
+
+                    stateModal();
+                }
+            };
+
+            var stateModal = function () {
 
                 var modalInstance = $uibModal.open({
                     animation: true,
-                    templateUrl: 'stateForm.html',
-                    controller: 'stateFormModalCtrl',
-                    size: 'lg'
+                    templateUrl: 'stateModal.html',
+                    controller: 'stateModalCtrl',
+                    size: 'md',
+                    resolve: {
+                        selectedState: function () {
+                            return $scope.selectedState;
+                        }
+                    }
                 });
 
-                modalInstance.result.then(function () {
-                    
+                modalInstance.result.then(function (selectedState) {
+
+                    $scope.selectedState = selectedState;
+
+                    svcApp.saveState($scope.selectedState).then(function (data) {
+
+                        var newNodeDataModel = {
+                            id: data.StateId, 
+                            name: data.Name,
+                            x: data.X,
+                            y: data.Y,
+                            description: data.description, 
+                            inputConnectors: [],
+                            outputConnectors: []
+                        };
+
+                        if (selectedState.StateId <= 0) {
+                            $scope.chartViewModel.addNode(newNodeDataModel);
+                        }
+                        else {
+                            $scope.chartViewModel.changeNode(newNodeDataModel);
+                        }
+                        
+                    }, function () { alert('error saving state'); });
+
                 }, function () {
-                    
+
                 });
-            };
+
+            }
 
 
             //
@@ -198,8 +271,8 @@
             // Create the view-model for the chart and attach to the scope.
             svcApp.getFlowchart().then(function (data) {
                 $scope.chartViewModel = new flowchart.ChartViewModel(data);
+                console.log($scope.chartViewModel);
             }, function () { });
-
 
             //
             // Event handler for key-down on the flowchart.
@@ -207,7 +280,6 @@
             $scope.keyDown = function (evt) {
 
                 if (evt.keyCode === ctrlKeyCode) {
-
                     ctrlDown = true;
                     evt.stopPropagation();
                     evt.preventDefault();
@@ -260,31 +332,6 @@
             };
 
             //
-            // Add a new node to the chart.
-            //
-            $scope.addNewNode = function () {
-
-                var nodeName = prompt("Enter a node name:", "New node");
-                if (!nodeName) {
-                    return;
-                }
-
-                svcApp.createState(nodeName, 'my desc').then(function (data) {
-                    console.log(data);
-                    var newNodeDataModel = {
-                        name: nodeName,
-                        x: 0,
-                        y: 0,
-                        inputConnectors: [],
-                        outputConnectors: []
-                    };
-
-                    $scope.chartViewModel.addNode(newNodeDataModel);
-
-                }, function () { alert('error'); });
-            };
-
-            //
             // Add an input connector to selected nodes.
             //
             $scope.addNewInputConnector = function () {
@@ -328,6 +375,15 @@
                 $scope.chartViewModel.deleteSelected();
             };
 
+            $scope.oneNodeSelected = function () {
+                if ($scope.chartViewModel) {
+                    return $scope.chartViewModel.getSelectedNodes().length == 1 && $scope.chartViewModel.getSelectedConnections().length == 0;
+                }
+                else {
+                    return false;
+                }
+            }
+
             $scope.twoNodesSelected = function () {
                 if ($scope.chartViewModel) {
                     return $scope.chartViewModel.getSelectedNodes().length == 2 && $scope.chartViewModel.getSelectedConnections().length == 0;
@@ -346,16 +402,22 @@
                 }
             }
 
+            //$scope.$watch("chartViewModel.data", function () { alert('a change occurred'); }, true);
+
         }]);
 
-        angular.module('app').controller('stateFormModalCtrl', function ($scope, $uibModalInstance) {
+        angular.module('app').controller('stateModalCtrl', function ($scope, $uibModalInstance, selectedState) {
+
+            $scope.selectedState = selectedState;
+
             $scope.ok = function () {
-                $uibModalInstance.close();
+                $uibModalInstance.close($scope.selectedState);
             };
 
             $scope.cancel = function () {
                 $uibModalInstance.dismiss('cancel');
             };
+
         });
 
         angular.module('app').factory('svcApp', ['$http', function ($http) {
@@ -375,16 +437,8 @@
                 })
             };
 
-            var _createState = function (name, desc) {
-                return $http.post($("#state_jsoncreate").attr("href"), {
-                    StateId: 0,
-                    ProcessId: 1,
-                    StateTypeId: 1,
-                    Name: name,
-                    Description: desc,
-                    X: 0,
-                    Y: 0
-                }).then(function (response) {
+            var _saveState = function (state) {
+                return $http.post($("#state_jsonsave").attr("href"), state).then(function (response) {
                     return response.data;
                 })
             }
@@ -392,7 +446,7 @@
             return {
                 getFlowchart: _getFlowchart,
                 getTransition: _getTransition,
-                createState: _createState
+                saveState: _saveState
             }
 
         }]);
