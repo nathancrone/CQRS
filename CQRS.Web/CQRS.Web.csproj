@@ -930,6 +930,8 @@
     <Compile Include="App_Start\UnityConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ProcessController.cs" />
+    <Compile Include="Controllers\StateController.cs" />
+    <Compile Include="Controllers\TransitionController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -958,6 +960,8 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Models\" />
+    <Folder Include="Views\State\" />
+    <Folder Include="Views\Transition\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CQRS.Core\CQRS.Core.csproj">

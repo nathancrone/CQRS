@@ -1,6 +1,8 @@
 ﻿using System.Linq;
 using CQRS.Core;
 using CQRS.Core.Models;
+using CQRS.Service.Commands;
+using CQRS.Service.CommandHandlers;
 using CQRS.Service.Queries;
 using CQRS.Service.QueryResults;
 using CQRS.Service.QueryHandlers;
@@ -15,6 +17,9 @@ namespace CQRS.Service
         {
             registrar.RegisterType<IQueryHandler<TasksByStatusQuery, TasksByStatusQueryResult>, TasksByStatusQueryHandler>();
             registrar.RegisterType<IQueryHandler<ByIdQuery, ProcessByIdQueryResult>, ProcessByIdQueryHandler>();
+            registrar.RegisterType<IQueryHandler<TransitionByCurrentAndNextStateQuery, TransitionByCurrentAndNextStateQueryResult>, TransitionByCurrentAndNextStateQueryHandler>();
+
+            registrar.RegisterType<ICommandHandler<CreateStateCommand>, CreateStateCommandHandler>();
         }
     }
 }

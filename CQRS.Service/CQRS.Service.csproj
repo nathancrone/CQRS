@@ -41,15 +41,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandHandlers\CreateStateCommandHandler.cs" />
     <Compile Include="CommandHandlers\ChangeTaskStatusCommandHandler.cs" />
+    <Compile Include="Commands\CreateStateCommand.cs" />
     <Compile Include="Commands\ChangeTaskStatusCommand.cs" />
     <Compile Include="ModuleInit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queries\ByIdQuery.cs" />
+    <Compile Include="Queries\TransitionByCurrentAndNextStateQuery.cs" />
     <Compile Include="Queries\TasksByStatusQuery.cs" />
     <Compile Include="QueryHandlers\ProcessByIdQueryHandler.cs" />
+    <Compile Include="QueryHandlers\TransitionByCurrentAndNextStateQueryHandler.cs" />
     <Compile Include="QueryHandlers\TasksByStatusQueryHandler.cs" />
     <Compile Include="QueryResults\ProcessByIdQueryResult.cs" />
+    <Compile Include="QueryResults\TransitionByCurrentAndNextStateQueryResult.cs" />
     <Compile Include="QueryResults\TasksByStatusQueryResult.cs" />
   </ItemGroup>
   <ItemGroup>

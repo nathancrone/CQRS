@@ -39,11 +39,6 @@ namespace CQRS.Repository
                 query = includes.Aggregate(query,
                           (current, include) => current.Include(include));
             }
-            //foreach (var includeProperty in includeProperties.Split
-            //    (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-            //{
-            //    query = query.Include(includeProperty);
-            //}
 
             if (orderBy != null)
             {

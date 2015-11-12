@@ -190,11 +190,12 @@ angular.module('flowChart', ['dragging'] )
 		return point.matrixTransform(matrix.inverse());
 	};
 
+
 	//
 	// Called on mouse down in the chart.
 	//
 	$scope.mouseDown = function (evt) {
-
+	    
 		$scope.chart.deselectAll();
 
 		dragging.startDrag(evt, {
@@ -282,6 +283,10 @@ angular.module('flowChart', ['dragging'] )
 		var scope = controller.checkForHit(mouseOverElement, controller.nodeClass);
 		$scope.mouseOverNode = (scope && scope.node) ? scope.node : null;		
 	};
+
+	$scope.nodeMouseUp = function (evt, node) {
+	    //alert('hello');
+	}
 
 	//
 	// Handle mousedown on a node.

@@ -28,6 +28,7 @@
   <g
     ng-repeat="node in chart.nodes"
     ng-mousedown="nodeMouseDown($event, node)"
+    ng-mouseup="nodeMouseUp($event, node)"
     ng-attr-transform="translate({{node.x()}}, {{node.y()}})"
     >
     <rect 

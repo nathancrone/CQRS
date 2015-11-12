@@ -63,6 +63,5 @@ namespace CQRS.Web.Controllers
 
             return Content(JsonConvert.SerializeObject(data), "application/json");
         }
-
     }
 }

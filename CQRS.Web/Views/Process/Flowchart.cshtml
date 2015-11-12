@@ -18,7 +18,8 @@
       ng-controller="AppCtrl"
       mouse-capture
       ng-keydown="keyDown($event)"
-      ng-keyup="keyUp($event)">
+      ng-keyup="keyUp($event)" 
+      ng-mouseup="mouseUp($event)">
 
     <nav class="navbar navbar-inverse navbar-fixed-top">
         <div class="container-fluid">
@@ -45,20 +46,28 @@
         <div class="row">
             <div class="col-sm-3 col-md-2 sidebar">
 
+                <h3>States...</h3>
                 <ul class="nav nav-sidebar">
                     <li><a href="#" ng-click="addNewNode()">Add a new state</a></li>
                     <li><a href="#" ng-click="deleteSelected()">Delete state</a></li>
                 </ul>
 
-                @*only displayed when nothing but exactly one transition is selected*@
-                <ul class="nav nav-sidebar">
-                    <li><a href="#">Add action...</a></li>
-                </ul>
+                @*only displayed when exactly two states are selected*@
+                <div ng-show="twoNodesSelected()">
+                    <h3>Transitions...</h3>
+                    <ul class="nav nav-sidebar">
+                        <li><a href="#">Add transition...</a></li>
+                    </ul>
+                </div>
 
-                @*only displayed when nothing but exactly two states are selected*@
-                <ul class="nav nav-sidebar">
-                    <li><a href="#">Add transition...</a></li>
-                </ul>
+                @*only displayed when exactly one transition is selected*@
+                <div ng-show="oneConnectionSelected()">
+                    <h3>Actions...</h3>
+                    <ul class="nav nav-sidebar">
+                        <li ng-repeat="a in selectedTransition.Transition.Actions"><a href="#">{{ a.Name }}</a></li>
+                        <li><a href="#">Add action...</a></li>
+                    </ul>
+                </div>
 
             </div>
             <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" style="height: 1000px;">
@@ -89,7 +98,9 @@
             Delete Selected
         </button>*@
 
-    @Html.ActionLink(" ", "JsonFlowchart", "Process", null, new { id = "jsonflowchart", @class = "hide" })
+    @Html.ActionLink(" ", "JsonFlowchart", "Process", null, new { id = "process_jsonflowchart", @class = "hide" })
+    @Html.ActionLink(" ", "JsonByCurrentAndNextState", "Transition", null, new { id = "transition_jsonbycurrentandnextstate", @class = "hide" })
+    @Html.ActionLink(" ", "JsonCreate", "State", null, new { id = "state_jsoncreate", @class = "hide" })
 
     <script src="~/Scripts/jquery-1.11.3.min.js"></script>
     <script src="~/Scripts/angular.min.js"></script>
@@ -107,6 +118,9 @@
         //
         angular.module('app', ['flowChart', ])
         .controller('AppCtrl', ['$scope', 'svcApp', function AppCtrl($scope, svcApp) {
+
+            $scope.chartViewModel = null;
+            $scope.selectedTransition = null;
 
             //
             // Code for the delete key.
@@ -140,8 +154,10 @@
 
 
             svcApp.getFlowchart().then(function (data) {
+                // Create the view-model for the chart and attach to the scope.
                 $scope.chartViewModel = new flowchart.ChartViewModel(data);
             }, function () { });
+
 
             //
             // Event handler for key-down on the flowchart.
@@ -188,51 +204,42 @@
                 }
             };
 
+
+            $scope.mouseUp = function (evt) {
+                if ($scope.oneConnectionSelected()) {
+                    var selectedConnection = $scope.chartViewModel.getSelectedConnections()[0];
+                    svcApp.getTransition(selectedConnection.data.source.nodeID, selectedConnection.data.dest.nodeID).then(function (data) {
+                        $scope.selectedTransition = data;
+                    }, function () { });
+                }
+                else {
+                    $scope.selectedTransition = null;
+                }
+            };
+
             //
             // Add a new node to the chart.
             //
             $scope.addNewNode = function () {
-
 
                 var nodeName = prompt("Enter a node name:", "New node");
                 if (!nodeName) {
                     return;
                 }
 
-                //
-                // Template for a new node.
-                //
-                var newNodeDataModel = {
-                    name: nodeName,
-                    id: nextNodeID++,
-                    x: 0,
-                    y: 0,
-                    inputConnectors: [
-                        {
-                            name: "X"
-                        },
-                        {
-                            name: "Y"
-                        },
-                        {
-                            name: "Z"
-                        }
-                    ],
-                    outputConnectors: [
-                        {
-                            name: "1"
-                        },
-                        {
-                            name: "2"
-                        },
-                        {
-                            name: "3"
-                        }
-                    ],
-                };
+                svcApp.createState(nodeName, 'my desc').then(function (data) {
+                    console.log(data);
+                    var newNodeDataModel = {
+                        name: nodeName,
+                        x: 0,
+                        y: 0,
+                        inputConnectors: [],
+                        outputConnectors: []
+                    };
 
+                    $scope.chartViewModel.addNode(newNodeDataModel);
 
-                $scope.chartViewModel.addNode(newNodeDataModel);
+                }, function () { alert('error'); });
             };
 
             //
@@ -279,22 +286,63 @@
                 $scope.chartViewModel.deleteSelected();
             };
 
-            //
-            // Create the view-model for the chart and attach to the scope.
-            //
-            //$scope.chartViewModel = new flowchart.ChartViewModel(chartDataModel);
+            $scope.twoNodesSelected = function () 
+            {
+                if ($scope.chartViewModel) {
+                    return $scope.chartViewModel.getSelectedNodes().length == 2 && $scope.chartViewModel.getSelectedConnections().length == 0;
+                }
+                else {
+                    return false;
+                }
+            }
+
+            $scope.oneConnectionSelected = function () {
+                if ($scope.chartViewModel) {
+                    return $scope.chartViewModel.getSelectedNodes().length == 0 && $scope.chartViewModel.getSelectedConnections().length == 1;
+                }
+                else {
+                    return false;
+                }
+            }
         }]);
 
         angular.module('app').factory('svcApp', ['$http', function ($http) {
+
             var _getFlowchart = function () {
-                return $http.get($("#jsonflowchart").attr("href") + "?id=1")
+                return $http.get($("#process_jsonflowchart").attr("href") + "?id=1")
                         .then(function (response) {
                             return response.data;
                         })
             };
-            return {
-                getFlowchart: _getFlowchart
+
+            var _getTransition = function (curr, next) {
+                return $http.post($("#transition_jsonbycurrentandnextstate").attr("href"), {
+                    CurrentStateId: curr, NextStateId: next
+                }).then(function (response) {
+                    return response.data;
+                })
+            };
+
+            var _createState = function (name, desc) {
+                return $http.post($("#state_jsoncreate").attr("href"), {
+                    StateId: 0,
+                    ProcessId: 1,
+                    StateTypeId: 1,
+                    Name: name,
+                    Description: desc,
+                    X: 0,
+                    Y: 0
+                }).then(function (response) {
+                    return response.data;
+                })
             }
+
+            return {
+                getFlowchart: _getFlowchart,
+                getTransition: _getTransition,
+                createState: _createState 
+            }
+
         }]);
     </script>
 </body>
