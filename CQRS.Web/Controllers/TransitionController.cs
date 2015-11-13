@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CQRS.Core;
+using CQRS.Service.Commands;
 using CQRS.Service.Queries;
 using CQRS.Service.QueryResults;
 using System.Web.Mvc;
@@ -27,6 +28,14 @@ namespace CQRS.Web.Controllers
         {
             var result = _queryDispatcher.Dispatch<TransitionByCurrentAndNextStateQuery, TransitionByCurrentAndNextStateQueryResult>(query);
             return Content(JsonConvert.SerializeObject(result, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore, PreserveReferencesHandling = PreserveReferencesHandling.Objects }), "application/json");
+        }
+
+
+        [HttpPost]
+        public ActionResult JsonSave(SaveTransitionCommand command)
+        {
+            _commandDispatcher.Dispatch(command);
+            return Content(JsonConvert.SerializeObject(command.Transition), "application/json");
         }
     }
 }

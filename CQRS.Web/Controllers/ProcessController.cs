@@ -58,6 +58,7 @@ namespace CQRS.Web.Controllers
                 }).ToArray(),
                 connections = result.Process.Transitions.Select(x => new
                 {
+                    id = x.TransitionId, 
                     source = new { nodeID = x.CurrentStateId, connectorIndex = IndexCurrent[x.CurrentStateId ?? 0]++ },
                     dest = new { nodeID = x.NextStateId, connectorIndex = IndexNext[x.NextStateId ?? 0]++ }
                 }).ToArray()

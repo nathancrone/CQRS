@@ -41,9 +41,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandHandlers\SaveTransitionCommandHandler.cs" />
     <Compile Include="CommandHandlers\SaveStateCoordiatesCommandHandler.cs" />
     <Compile Include="CommandHandlers\SaveStateCommandHandler.cs" />
     <Compile Include="CommandHandlers\ChangeTaskStatusCommandHandler.cs" />
+    <Compile Include="Commands\SaveTransitionCommand.cs" />
     <Compile Include="Commands\SaveStateCoordinatesCommand.cs" />
     <Compile Include="Commands\SaveStateCommand.cs" />
     <Compile Include="Commands\ChangeTaskStatusCommand.cs" />
@@ -52,6 +54,7 @@
     <Compile Include="Queries\ByIdQuery.cs" />
     <Compile Include="Queries\TransitionByCurrentAndNextStateQuery.cs" />
     <Compile Include="Queries\TasksByStatusQuery.cs" />
+    <Compile Include="QueryHandlers\TransitionByIdQueryHandler.cs" />
     <Compile Include="QueryHandlers\ProcessByIdQueryHandler.cs" />
     <Compile Include="QueryHandlers\TransitionByCurrentAndNextStateQueryHandler.cs" />
     <Compile Include="QueryHandlers\TasksByStatusQueryHandler.cs" />

@@ -259,6 +259,10 @@ var flowchart = {
 			return this.data.name || "";
 		}
 
+		this.id = function () {
+		    return this.data.id;
+		}
+
 		this.sourceCoordX = function () { 
 			return this.source.parentNode().x() + this.source.x();
 		};
@@ -584,6 +588,7 @@ var flowchart = {
 		    var node = this.findNode(nodeDataModel.id);
 		    if (node) {
 		        node.data.name = nodeDataModel.name;
+		        node.data.description = nodeDataModel.description;
 		        node.data.x = nodeDataModel.x;
 		        node.data.y = nodeDataModel.y;
 		    }

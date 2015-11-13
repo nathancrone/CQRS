@@ -50,7 +50,6 @@
 
                     <h3>States...</h3>
                     <ul class="nav nav-sidebar">
-                        @*<li><a href="#" ng-click="addNewNode()">Add a new state</a></li>*@
                         <li><a href="#" ng-click="stateAdd()">Add a new state</a></li>
                         <li ng-show="oneNodeSelected()"><a href="#" ng-click="stateUpdate()">Edit state</a></li>
                         <li ng-show="oneNodeSelected()"><a href="#" ng-click="deleteSelected()">Delete state</a></li>
@@ -60,7 +59,7 @@
                     <div ng-show="twoNodesSelected()">
                         <h3>Transitions...</h3>
                         <ul class="nav nav-sidebar">
-                            <li><a href="#">Add transition...</a></li>
+                            <li><a href="#" ng-click="transitionAdd()">Add transition</a></li>
                         </ul>
                     </div>
 
@@ -104,6 +103,21 @@
             </div>
         </script>
 
+        <script type="text/ng-template" id="transitionModal.html">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Transition</h3>
+            </div>
+            <div class="modal-body">
+                <form role="form">
+                    transition form goes here
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" type="button" ng-click="ok()">OK</button>
+                <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+            </div>
+        </script>
+
     </div>
 
 
@@ -132,6 +146,7 @@
     @Html.ActionLink(" ", "JsonByCurrentAndNextState", "Transition", null, new { id = "transition_jsonbycurrentandnextstate", @class = "hide" })
     @Html.ActionLink(" ", "JsonSave", "State", null, new { id = "state_jsonsave", @class = "hide" })
     @Html.ActionLink(" ", "JsonSaveCoordinates", "State", null, new { id = "state_jsonsavecoordinates", @class = "hide" })
+    @Html.ActionLink(" ", "JsonSave", "Transition", null, new { id = "transition_jsonsave", @class = "hide" })
 
     <script src="~/Scripts/jquery-1.11.3.min.js"></script>
     <script src="~/Scripts/angular.min.js"></script>
@@ -218,7 +233,7 @@
                             name: data.Name,
                             x: data.X,
                             y: data.Y,
-                            description: data.description, 
+                            description: data.Description, 
                             inputConnectors: [],
                             outputConnectors: []
                         };
@@ -237,6 +252,92 @@
                 });
 
             }
+
+
+
+
+
+
+
+
+
+
+
+            $scope.transitionAdd = function () {
+
+                $scope.selectedTransition = {
+                    TransitionId: 0,
+                    ProcessId: 1,
+                    CurrentStateId: 1,
+                    NextStateId: 1
+                }
+
+                transitionModal();
+            };
+
+            $scope.transitionUpdate = function () {
+
+                if ($scope.oneConnectionSelected()) {
+
+                    var connection = $scope.chartViewModel.getSelectedConnections()[0].data;
+                    $scope.selectedTransition = {
+                        TransitionId: connection.id,
+                        ProcessId: 1,
+                        CurrentStateId: connection.source.nodeID,
+                        NextStateId: connection.dest.nodeID
+                    }
+
+                    transitionModal();
+                }
+            };
+
+            var transitionModal = function () {
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    templateUrl: 'transitionModal.html',
+                    controller: 'transitionModalCtrl',
+                    size: 'md',
+                    resolve: {
+                        selectedTransition: function () {
+                            return $scope.selectedTransition;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function (selectedTransition) {
+
+                    $scope.selectedTransition = selectedTransition;
+
+                    svcApp.saveTransition($scope.selectedTransition).then(function (data) {
+
+                        var newConnectionDataModel = {
+                            source: { nodeID: 0, connectorIndex: 0 },
+                            source: { nodeID: 0, connectorIndex: 0 }
+                        };
+
+                        if (selectedTransition.TransitionId <= 0) {
+                            $scope.chartViewModel.addConnection(newConnectionDataModel);
+                        }
+                        else {
+                            $scope.chartViewModel.changeConnection(newConnectionDataModel);
+                        }
+
+                    }, function () { alert('error saving connection'); });
+
+                }, function () {
+
+                });
+
+            }
+
+
+
+
+
+
+
+
 
 
             //
@@ -428,6 +529,18 @@
 
         });
 
+        angular.module('app').controller('transitionModalCtrl', function ($scope, $uibModalInstance, selectedTransition) {
+
+            $scope.ok = function () {
+                $uibModalInstance.close();
+            };
+
+            $scope.cancel = function () {
+                $uibModalInstance.dismiss('cancel');
+            };
+
+        });
+
         angular.module('app').factory('svcApp', ['$http', function ($http) {
 
             var _getFlowchart = function () {
@@ -471,6 +584,23 @@
 
             }
 
+            var _saveTransition = function (transition) {
+
+                var req = {
+                    method: 'POST',
+                    url: $("#transition_jsonsave").attr("href"),
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    data: $.param({ Transition: transition })
+                }
+
+                return $http(req).then(function (response) {
+                    return response.data;
+                });
+
+            }
+
             var _saveStateCoordinates = function (coords) {
 
                 var req = {
@@ -492,7 +622,8 @@
                 getFlowchart: _getFlowchart,
                 getTransition: _getTransition,
                 saveState: _saveState,
-                saveStateCoordinates: _saveStateCoordinates
+                saveStateCoordinates: _saveStateCoordinates, 
+                saveTransition: _saveTransition
             }
 
         }]);
