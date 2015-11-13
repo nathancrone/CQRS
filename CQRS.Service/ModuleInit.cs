@@ -20,6 +20,7 @@ namespace CQRS.Service
             registrar.RegisterType<IQueryHandler<TransitionByCurrentAndNextStateQuery, TransitionByCurrentAndNextStateQueryResult>, TransitionByCurrentAndNextStateQueryHandler>();
 
             registrar.RegisterType<ICommandHandler<SaveStateCommand>, SaveStateCommandHandler>();
+            registrar.RegisterType<ICommandHandler<SaveStateCoordinatesCommand>, SaveStateCoordinatesCommandHandler>();
         }
     }
 }

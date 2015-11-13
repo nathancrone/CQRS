@@ -17,7 +17,7 @@ namespace CQRS.Core
 
         //Insert/Update/Delete
         void Insert(T entity);
-        void Update(T entity);
+        void Update(T entity, string[] Properties = null);
         void Delete(T entity);
 
         //Persistence

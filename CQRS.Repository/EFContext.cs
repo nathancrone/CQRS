@@ -7,10 +7,6 @@ namespace CQRS.Repository
 {
     class EFContext : DbContext, IContext
     {
-        //public EFContext()
-        //{
-        //    Database.SetInitializer<EFContext>(new CreateDatabaseIfNotExists<EFContext>());
-        //}
 
         public virtual DbSet<Task> Tasks { get; set; }
 
@@ -31,8 +27,7 @@ namespace CQRS.Repository
         public virtual DbSet<ActionTarget> ActionTargets { get; set; }
         public virtual DbSet<ActivityTarget> ActivityTargets { get; set; }
         public virtual DbSet<RequestAction> RequestActions { get; set; }
-
-        //using fluent api instead of attributes (avoids decorating POCO class with EF-specific attributes)
+        
         //using fluent api instead of attributes (avoids decorating POCO class with EF-specific attributes)
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -109,10 +104,7 @@ namespace CQRS.Repository
                 .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
             modelBuilder.Entity<RequestAction>()
                 .Property(x => x.RequestActionId)
-                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
-
-
-            
+                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);            
 
 
             //for each property in an entity, define the attributes of the corresponding column (string length, nullable, etc).

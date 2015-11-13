@@ -60,10 +60,22 @@ namespace CQRS.Repository
             _dbSet.Add(entity);
         }
 
-        public void Update(T entity)
+        public void Update(T entity, string[] Properties = null)
         {
             _dbSet.Attach(entity);
-            ((DbContext)_context).Entry(entity).State = EntityState.Modified;
+
+            if (Properties != null)
+            {
+                ((DbContext)_context).Entry(entity).State = EntityState.Unchanged;
+                foreach (string p in Properties)
+                {
+                    ((DbContext)_context).Entry(entity).Property(p).IsModified = true;
+                }
+            }
+            else
+            {
+                ((DbContext)_context).Entry(entity).State = EntityState.Modified;
+            }
         }
 
         public void Delete(T entity)
@@ -77,6 +89,7 @@ namespace CQRS.Repository
 
         public void Save()
         {
+            ((DbContext)_context).Configuration.ValidateOnSaveEnabled = false;
             ((DbContext)_context).SaveChanges();
         }
 

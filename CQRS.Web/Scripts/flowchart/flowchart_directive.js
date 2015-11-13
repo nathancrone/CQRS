@@ -13,6 +13,7 @@ angular.module('flowChart', ['dragging'] )
   	replace: true,
   	scope: {
   	    chart: "=chart",
+  	    onNodeDragEndNotify: "&onNodeDragEnd",
   	},
 
   	//
@@ -284,10 +285,6 @@ angular.module('flowChart', ['dragging'] )
 		$scope.mouseOverNode = (scope && scope.node) ? scope.node : null;		
 	};
 
-	$scope.nodeMouseUp = function (evt, node) {
-	    //alert('hello');
-	}
-
 	//
 	// Handle mousedown on a node.
 	//
@@ -327,6 +324,13 @@ angular.module('flowChart', ['dragging'] )
 				chart.updateSelectedNodesLocation(deltaX, deltaY);
 
 				lastMouseCoords = curCoords;
+			},
+
+
+			dragEnded: function () {
+			    if (typeof ($scope.onNodeDragEndNotify) == 'function') {
+			        $scope.onNodeDragEndNotify({ evt: evt, node: node });
+			    }
 			},
 
 			//

@@ -41,8 +41,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandHandlers\SaveStateCoordiatesCommandHandler.cs" />
     <Compile Include="CommandHandlers\SaveStateCommandHandler.cs" />
     <Compile Include="CommandHandlers\ChangeTaskStatusCommandHandler.cs" />
+    <Compile Include="Commands\SaveStateCoordinatesCommand.cs" />
     <Compile Include="Commands\SaveStateCommand.cs" />
     <Compile Include="Commands\ChangeTaskStatusCommand.cs" />
     <Compile Include="ModuleInit.cs" />

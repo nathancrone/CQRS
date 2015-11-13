@@ -75,7 +75,7 @@
 
                 </div>
                 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" style="height: 1000px;">
-                    <flow-chart style="width: 100%; height: 100%;" chart="chartViewModel"></flow-chart>
+                    <flow-chart style="width: 100%; height: 100%;" chart="chartViewModel" on-node-drag-end="onNodeDragEndEvent(evt, node)"></flow-chart>
                     <textarea style="width: 100%; height: 100%;" chart-json-edit="" view-model="chartViewModel" class="ng-isolate-scope"></textarea>
                 </div>
             </div>
@@ -131,6 +131,7 @@
     @Html.ActionLink(" ", "JsonFlowchart", "Process", null, new { id = "process_jsonflowchart", @class = "hide" })
     @Html.ActionLink(" ", "JsonByCurrentAndNextState", "Transition", null, new { id = "transition_jsonbycurrentandnextstate", @class = "hide" })
     @Html.ActionLink(" ", "JsonSave", "State", null, new { id = "state_jsonsave", @class = "hide" })
+    @Html.ActionLink(" ", "JsonSaveCoordinates", "State", null, new { id = "state_jsonsavecoordinates", @class = "hide" })
 
     <script src="~/Scripts/jquery-1.11.3.min.js"></script>
     <script src="~/Scripts/angular.min.js"></script>
@@ -271,7 +272,6 @@
             // Create the view-model for the chart and attach to the scope.
             svcApp.getFlowchart().then(function (data) {
                 $scope.chartViewModel = new flowchart.ChartViewModel(data);
-                console.log($scope.chartViewModel);
             }, function () { });
 
             //
@@ -402,8 +402,16 @@
                 }
             }
 
-            //$scope.$watch("chartViewModel.data", function () { alert('a change occurred'); }, true);
-
+            $scope.onNodeDragEndEvent = function (evt, node)
+            {
+                var coords = [];
+                for (var selectedNode in $scope.chartViewModel.getSelectedNodes())
+                {
+                    currentNode = $scope.chartViewModel.getSelectedNodes()[selectedNode];
+                    coords.push({ StateId: currentNode.data.id, X: currentNode.data.x, Y: currentNode.data.y });
+                }
+                svcApp.saveStateCoordinates(coords);
+            }
         }]);
 
         angular.module('app').controller('stateModalCtrl', function ($scope, $uibModalInstance, selectedState) {
@@ -430,23 +438,61 @@
             };
 
             var _getTransition = function (curr, next) {
-                return $http.post($("#transition_jsonbycurrentandnextstate").attr("href"), {
-                    CurrentStateId: curr, NextStateId: next
-                }).then(function (response) {
+                var req = {
+                    method: 'POST',
+                    url: $("#transition_jsonbycurrentandnextstate").attr("href"),
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    data: $.param({
+                        CurrentStateId: curr, NextStateId: next
+                    })
+                }
+
+                return $http(req).then(function (response) {
                     return response.data;
-                })
+                });
             };
 
             var _saveState = function (state) {
-                return $http.post($("#state_jsonsave").attr("href"), state).then(function (response) {
+
+                var req = {
+                    method: 'POST',
+                    url: $("#state_jsonsave").attr("href"),
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    data: $.param({ State: state })
+                }
+
+                return $http(req).then(function (response) {
                     return response.data;
-                })
+                });
+
+            }
+
+            var _saveStateCoordinates = function (coords) {
+
+                var req = {
+                    method: 'POST',
+                    url: $("#state_jsonsavecoordinates").attr("href"),
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    data: $.param({ Coordinates: coords })
+                }
+
+                return $http(req).then(function (response) {
+                    return response.data;
+                });
+
             }
 
             return {
                 getFlowchart: _getFlowchart,
                 getTransition: _getTransition,
-                saveState: _saveState
+                saveState: _saveState,
+                saveStateCoordinates: _saveStateCoordinates
             }
 
         }]);
