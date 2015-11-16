@@ -200,9 +200,38 @@ var flowchart = {
 						flowchart.computeConnectorY(connectorsViewModel.length), this);
 
 			connectorsDataModel.push(connectorDataModel);
+			console.log(connectorsDataModel);
 
 			// Add to node's view model.
 			connectorsViewModel.push(connectorViewModel);
+			console.log(connectorsViewModel);
+		}
+
+		this.removeInputConnector = function (name) {
+
+		    var splice = -1;
+		    for (var index in this.data.inputConnectors) {
+		        if (this.data.inputConnectors[index].name == name) { splice = index; break; }
+		    }
+
+		    if (splice != -1) {
+		        this.data.inputConnectors.splice(splice, 1);
+		        this.inputConnectors.splice(splice, 1);
+		    }
+
+		}
+
+		this.removeOutputConnector = function (name) {
+
+		    var splice = -1;
+		    for (var index in this.data.outputConnectors) {
+		        if (this.data.outputConnectors[index].name == name) { splice = index; break; }
+		    }
+
+		    if (splice != -1) {
+		        this.data.outputConnectors.splice(splice, 1);
+		        this.outputConnectors.splice(splice, 1);
+		    }
 		}
 
 		//

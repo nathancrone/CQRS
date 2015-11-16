@@ -128,7 +128,6 @@
 
     </div>
 
-
     @*<button ng-click="addNewNode()"
                 title="Add a new node to the chart">
             Add Node
@@ -148,7 +147,6 @@
                 title="Delete selected nodes and connections">
             Delete Selected
         </button>*@
-
 
     @Html.ActionLink(" ", "JsonFlowchart", "Process", null, new { id = "process_jsonflowchart", @class = "hide" })
     @Html.ActionLink(" ", "JsonByCurrentAndNextState", "Transition", null, new { id = "transition_jsonbycurrentandnextstate", @class = "hide" })
@@ -262,16 +260,6 @@
 
             }
 
-
-
-
-
-
-
-
-
-
-
             $scope.transitionAdd = function () {
 
                 $scope.selectedTransition = {
@@ -331,48 +319,38 @@
 
                     svcApp.saveTransition($scope.selectedTransition).then(function (data) {
 
-                        var newConnectionDataModel = {
-                            id: data.TransitionId,
-                            source: { nodeID: data.CurrentStateId, connectorIndex: 0 },
-                            dest: { nodeID: data.NextStateId, connectorIndex: 0 }
-                        };
-
                         //if modifying an existing transition
                         if (selectedTransition.TransitionId > 0) {
-                            //delete the old connection
                             $scope.chartViewModel.deselectAll(); //deselect everything
                             $scope.chartViewModel.findConnection(data.TransitionId).select(); //select only the connection
-                            $scope.chartViewModel.deleteSelected();
+                            $scope.chartViewModel.deleteSelected(); //delete the old connection
                         }
 
                         $scope.chartViewModel.findNode(data.CurrentStateId).addOutputConnector({
                             name: data.TransitionId
                         });
+
+                        $scope.chartViewModel.findNode(data.CurrentStateId).removeInputConnector(data.TransitionId);
+
                         $scope.chartViewModel.findNode(data.NextStateId).addInputConnector({
                             name: data.TransitionId
                         });
+
+                        $scope.chartViewModel.findNode(data.NextStateId).removeOutputConnector(data.TransitionId);
 
                         $scope.chartViewModel.createNewConnection(
                             $scope.chartViewModel.findOutputConnector(data.CurrentStateId, $scope.chartViewModel.findNode(data.CurrentStateId).outputConnectors.length - 1),
                             $scope.chartViewModel.findInputConnector(data.NextStateId, $scope.chartViewModel.findNode(data.NextStateId).inputConnectors.length - 1)
                             );
 
+                        $scope.chartViewModel.connections[$scope.chartViewModel.connections.length - 1].data.id = data.TransitionId;
+
                     }, function () { alert('error saving connection'); });
 
                 }, function () {
 
                 });
-
             }
-
-
-
-
-
-
-
-
-
 
             //
             // Code for the delete key.
@@ -464,42 +442,6 @@
                     $scope.selectedTransition = null;
                 }
             };
-
-            ////
-            //// Add an input connector to selected nodes.
-            ////
-            //$scope.addNewInputConnector = function () {
-            //    var connectorName = prompt("Enter a connector name:", "New connector");
-            //    if (!connectorName) {
-            //        return;
-            //    }
-
-            //    var selectedNodes = $scope.chartViewModel.getSelectedNodes();
-            //    for (var i = 0; i < selectedNodes.length; ++i) {
-            //        var node = selectedNodes[i];
-            //        node.addInputConnector({
-            //            name: connectorName,
-            //        });
-            //    }
-            //};
-
-            ////
-            //// Add an output connector to selected nodes.
-            ////
-            //$scope.addNewOutputConnector = function () {
-            //    var connectorName = prompt("Enter a connector name:", "New connector");
-            //    if (!connectorName) {
-            //        return;
-            //    }
-
-            //    var selectedNodes = $scope.chartViewModel.getSelectedNodes();
-            //    for (var i = 0; i < selectedNodes.length; ++i) {
-            //        var node = selectedNodes[i];
-            //        node.addOutputConnector({
-            //            name: connectorName,
-            //        });
-            //    }
-            //};
 
             //
             // Delete selected nodes and connections.
