@@ -431,6 +431,18 @@ var flowchart = {
 			throw new Error("Failed to find node " + nodeID);
 		};
 
+		this.findConnection = function (connectionID) {
+
+		    for (var i = 0; i < this.connections.length; ++i) {
+		        var connection = this.connections[i];
+		        if (connection.data.id == connectionID) {
+		            return connection;
+		        }
+		    }
+
+		    throw new Error("Failed to find connection " + connectionID);
+		};
+
 		//
 		// Find a specific input connector within the chart.
 		//

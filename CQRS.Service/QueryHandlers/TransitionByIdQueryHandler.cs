@@ -1,40 +1,40 @@
-﻿//using System;
-//using System.Linq;
-//using System.Linq.Expressions;
-//using System.Collections.Generic;
+﻿using System;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Collections.Generic;
 
-//using CQRS.Core;
-//using CQRS.Core.Models;
-//using CQRS.Service.Queries;
-//using CQRS.Service.QueryResults;
+using CQRS.Core;
+using CQRS.Core.Models;
+using CQRS.Service.Queries;
+using CQRS.Service.QueryResults;
 
-//namespace CQRS.Service.QueryHandlers
-//{
-//    public class TransitionByIdQueryHandler : IQueryHandler<ByIdQuery, ProcessByIdQueryResult>
-//    {
-//        private readonly IGenericRepository<Process> _processRepository;
+namespace CQRS.Service.QueryHandlers
+{
+    public class TransitionByIdQueryHandler : IQueryHandler<ByIdQuery, TransitionByIdQueryResult>
+    {
+        private readonly IGenericRepository<Transition> _transitionRepository;
 
-//        public ProcessByIdQueryHandler(IGenericRepository<Process> processRepository)
-//        {
-//            _processRepository = processRepository;
-//        }
+        public TransitionByIdQueryHandler(IGenericRepository<Transition> transitionRepository)
+        {
+            _transitionRepository = transitionRepository;
+        }
 
-//        public ProcessByIdQueryResult Retrieve(ByIdQuery query)
-//        {
-//            ProcessByIdQueryResult result = new ProcessByIdQueryResult();
+        public TransitionByIdQueryResult Retrieve(ByIdQuery query)
+        {
+            TransitionByIdQueryResult result = new TransitionByIdQueryResult();
 
-//            //creating a list of "includes" to include states actions and transitions
-//            List<Expression<Func<Process, object>>> includes = new List<Expression<Func<Process, object>>>();
-//            includes.Add(x => x.States);
-//            includes.Add(x => x.States.Select(a => a.TransitionsFrom));
-//            includes.Add(x => x.States.Select(a => a.TransitionsTo));
-//            includes.Add(x => x.Transitions);
-//            includes.Add(x => x.Transitions.Select(a => a.Actions));
+            //creating a list of "includes" to include states actions and transitions
+            List<Expression<Func<Transition, object>>> includes = new List<Expression<Func<Transition, object>>>();
+            includes.Add(x => x.Actions);
+            //includes.Add(x => x.States.Select(a => a.TransitionsFrom));
+            //includes.Add(x => x.States.Select(a => a.TransitionsTo));
+            //includes.Add(x => x.Transitions);
+            //includes.Add(x => x.Transitions.Select(a => a.Actions));
 
-//            //filter by process id and include specified entities
-//            result.Process = _processRepository.Get(filter: x => x.ProcessId == query.Id, orderBy: null, includes: includes.ToArray()).FirstOrDefault();
+            //filter by process id and include specified entities
+            result.Transition = _transitionRepository.Get(filter: x => x.TransitionId == query.Id, orderBy: null, includes: includes.ToArray()).FirstOrDefault();
 
-//            return result;
-//        }
-//    }
-//}
+            return result;
+        }
+    }
+}

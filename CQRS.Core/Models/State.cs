@@ -14,8 +14,7 @@ namespace CQRS.Core.Models
 
         public Process Process { get; set; }
         public StateType StateType { get; set; }
-
-        //public ICollection<Transition> Transitions { get; set; }
+        
         public ICollection<Transition> TransitionsFrom { get; set; }
         public ICollection<Transition> TransitionsTo { get; set; }
 

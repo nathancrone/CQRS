@@ -5,7 +5,7 @@ using CQRS.Core.Models;
 
 namespace CQRS.Service.QueryResults
 {
-    public class TransitionByCurrentAndNextStateQueryResult : IQueryResult
+    public class TransitionByIdQueryResult : IQueryResult
     {
         public Transition Transition { get; set; }
     }

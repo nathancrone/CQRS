@@ -56,10 +56,11 @@
                     </ul>
 
                     @*only displayed when exactly two states are selected*@
-                    <div ng-show="twoNodesSelected()">
+                    <div ng-show="twoNodesSelected() || oneConnectionSelected()">
                         <h3>Transitions...</h3>
                         <ul class="nav nav-sidebar">
-                            <li><a href="#" ng-click="transitionAdd()">Add transition</a></li>
+                            <li ng-show="twoNodesSelected()"><a href="#" ng-click="transitionAdd()">Add transition</a></li>
+                            <li ng-show="oneConnectionSelected()"><a href="#" ng-click="transitionUpdate()">Edit transition</a></li>
                         </ul>
                     </div>
 
@@ -109,7 +110,14 @@
             </div>
             <div class="modal-body">
                 <form role="form">
-                    transition form goes here
+                    <div class="form-group">
+                        <label for="From">From:</label>
+                        <select ng-model="selectedTransition.CurrentStateId" ng-options="node.data.id as node.data.name for node in selectedNodes"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="To">To:</label>
+                        <select ng-model="selectedTransition.NextStateId" ng-options="node.data.id as node.data.name for node in selectedNodes"></select>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -144,6 +152,7 @@
 
     @Html.ActionLink(" ", "JsonFlowchart", "Process", null, new { id = "process_jsonflowchart", @class = "hide" })
     @Html.ActionLink(" ", "JsonByCurrentAndNextState", "Transition", null, new { id = "transition_jsonbycurrentandnextstate", @class = "hide" })
+    @Html.ActionLink(" ", "JsonById", "Transition", null, new { id = "transition_jsonbyid", @class = "hide" })
     @Html.ActionLink(" ", "JsonSave", "State", null, new { id = "state_jsonsave", @class = "hide" })
     @Html.ActionLink(" ", "JsonSaveCoordinates", "State", null, new { id = "state_jsonsavecoordinates", @class = "hide" })
     @Html.ActionLink(" ", "JsonSave", "Transition", null, new { id = "transition_jsonsave", @class = "hide" })
@@ -197,7 +206,7 @@
                     $scope.selectedState = {
                         StateId: node.id,
                         ProcessId: 1,
-                        StateTypeId: node.statetypeid,
+                        StateTypeId: 1,
                         Name: node.name,
                         Description: node.description,
                         X: node.x,
@@ -268,8 +277,8 @@
                 $scope.selectedTransition = {
                     TransitionId: 0,
                     ProcessId: 1,
-                    CurrentStateId: 1,
-                    NextStateId: 1
+                    CurrentStateId: $scope.chartViewModel.getSelectedNodes()[0].data.id,
+                    NextStateId: $scope.chartViewModel.getSelectedNodes()[1].data.id
                 }
 
                 transitionModal();
@@ -293,6 +302,14 @@
 
             var transitionModal = function () {
 
+                var selectedNodes = null;
+                if ($scope.selectedTransition.TransitionId <= 0) {
+                    selectedNodes = $scope.chartViewModel.getSelectedNodes();
+                }
+                else {
+                    selectedNodes = [$scope.chartViewModel.findNode($scope.selectedTransition.CurrentStateId), $scope.chartViewModel.findNode($scope.selectedTransition.NextStateId)];
+                }
+
                 var modalInstance = $uibModal.open({
                     animation: true,
                     templateUrl: 'transitionModal.html',
@@ -301,6 +318,9 @@
                     resolve: {
                         selectedTransition: function () {
                             return $scope.selectedTransition;
+                        }, 
+                        selectedNodes: function () {
+                            return selectedNodes;
                         }
                     }
                 });
@@ -312,16 +332,30 @@
                     svcApp.saveTransition($scope.selectedTransition).then(function (data) {
 
                         var newConnectionDataModel = {
-                            source: { nodeID: 0, connectorIndex: 0 },
-                            source: { nodeID: 0, connectorIndex: 0 }
+                            id: data.TransitionId,
+                            source: { nodeID: data.CurrentStateId, connectorIndex: 0 },
+                            dest: { nodeID: data.NextStateId, connectorIndex: 0 }
                         };
 
-                        if (selectedTransition.TransitionId <= 0) {
-                            $scope.chartViewModel.addConnection(newConnectionDataModel);
+                        //if modifying an existing transition
+                        if (selectedTransition.TransitionId > 0) {
+                            //delete the old connection
+                            $scope.chartViewModel.deselectAll(); //deselect everything
+                            $scope.chartViewModel.findConnection(data.TransitionId).select(); //select only the connection
+                            $scope.chartViewModel.deleteSelected();
                         }
-                        else {
-                            $scope.chartViewModel.changeConnection(newConnectionDataModel);
-                        }
+
+                        $scope.chartViewModel.findNode(data.CurrentStateId).addOutputConnector({
+                            name: data.TransitionId
+                        });
+                        $scope.chartViewModel.findNode(data.NextStateId).addInputConnector({
+                            name: data.TransitionId
+                        });
+
+                        $scope.chartViewModel.createNewConnection(
+                            $scope.chartViewModel.findOutputConnector(data.CurrentStateId, $scope.chartViewModel.findNode(data.CurrentStateId).outputConnectors.length - 1),
+                            $scope.chartViewModel.findInputConnector(data.NextStateId, $scope.chartViewModel.findNode(data.NextStateId).inputConnectors.length - 1)
+                            );
 
                     }, function () { alert('error saving connection'); });
 
@@ -419,11 +453,10 @@
                 }
             };
 
-
             $scope.mouseUp = function (evt) {
                 if ($scope.oneConnectionSelected()) {
                     var selectedConnection = $scope.chartViewModel.getSelectedConnections()[0];
-                    svcApp.getTransition(selectedConnection.data.source.nodeID, selectedConnection.data.dest.nodeID).then(function (data) {
+                    svcApp.getTransition(selectedConnection.data.id).then(function (data) {
                         $scope.selectedTransition = data;
                     }, function () { });
                 }
@@ -432,41 +465,41 @@
                 }
             };
 
-            //
-            // Add an input connector to selected nodes.
-            //
-            $scope.addNewInputConnector = function () {
-                var connectorName = prompt("Enter a connector name:", "New connector");
-                if (!connectorName) {
-                    return;
-                }
+            ////
+            //// Add an input connector to selected nodes.
+            ////
+            //$scope.addNewInputConnector = function () {
+            //    var connectorName = prompt("Enter a connector name:", "New connector");
+            //    if (!connectorName) {
+            //        return;
+            //    }
 
-                var selectedNodes = $scope.chartViewModel.getSelectedNodes();
-                for (var i = 0; i < selectedNodes.length; ++i) {
-                    var node = selectedNodes[i];
-                    node.addInputConnector({
-                        name: connectorName,
-                    });
-                }
-            };
+            //    var selectedNodes = $scope.chartViewModel.getSelectedNodes();
+            //    for (var i = 0; i < selectedNodes.length; ++i) {
+            //        var node = selectedNodes[i];
+            //        node.addInputConnector({
+            //            name: connectorName,
+            //        });
+            //    }
+            //};
 
-            //
-            // Add an output connector to selected nodes.
-            //
-            $scope.addNewOutputConnector = function () {
-                var connectorName = prompt("Enter a connector name:", "New connector");
-                if (!connectorName) {
-                    return;
-                }
+            ////
+            //// Add an output connector to selected nodes.
+            ////
+            //$scope.addNewOutputConnector = function () {
+            //    var connectorName = prompt("Enter a connector name:", "New connector");
+            //    if (!connectorName) {
+            //        return;
+            //    }
 
-                var selectedNodes = $scope.chartViewModel.getSelectedNodes();
-                for (var i = 0; i < selectedNodes.length; ++i) {
-                    var node = selectedNodes[i];
-                    node.addOutputConnector({
-                        name: connectorName,
-                    });
-                }
-            };
+            //    var selectedNodes = $scope.chartViewModel.getSelectedNodes();
+            //    for (var i = 0; i < selectedNodes.length; ++i) {
+            //        var node = selectedNodes[i];
+            //        node.addOutputConnector({
+            //            name: connectorName,
+            //        });
+            //    }
+            //};
 
             //
             // Delete selected nodes and connections.
@@ -529,10 +562,13 @@
 
         });
 
-        angular.module('app').controller('transitionModalCtrl', function ($scope, $uibModalInstance, selectedTransition) {
+        angular.module('app').controller('transitionModalCtrl', function ($scope, $uibModalInstance, selectedTransition, selectedNodes) {
+
+            $scope.selectedTransition = selectedTransition;
+            $scope.selectedNodes = selectedNodes;
 
             $scope.ok = function () {
-                $uibModalInstance.close();
+                $uibModalInstance.close($scope.selectedTransition);
             };
 
             $scope.cancel = function () {
@@ -550,15 +586,15 @@
                         })
             };
 
-            var _getTransition = function (curr, next) {
+            var _getTransition = function (id) {
                 var req = {
                     method: 'POST',
-                    url: $("#transition_jsonbycurrentandnextstate").attr("href"),
+                    url: $("#transition_jsonbyid").attr("href"),
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
                     },
                     data: $.param({
-                        CurrentStateId: curr, NextStateId: next
+                        Id: id
                     })
                 }
 
@@ -594,7 +630,7 @@
                     },
                     data: $.param({ Transition: transition })
                 }
-
+                
                 return $http(req).then(function (response) {
                     return response.data;
                 });

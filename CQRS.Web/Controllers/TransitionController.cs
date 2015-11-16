@@ -24,9 +24,9 @@ namespace CQRS.Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult JsonByCurrentAndNextState(TransitionByCurrentAndNextStateQuery query)
+        public ActionResult JsonById(ByIdQuery query)
         {
-            var result = _queryDispatcher.Dispatch<TransitionByCurrentAndNextStateQuery, TransitionByCurrentAndNextStateQueryResult>(query);
+            var result = _queryDispatcher.Dispatch<ByIdQuery, TransitionByIdQueryResult>(query);
             return Content(JsonConvert.SerializeObject(result, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore, PreserveReferencesHandling = PreserveReferencesHandling.Objects }), "application/json");
         }
 
