@@ -20,7 +20,7 @@ namespace CQRS.Core
         void Update(T entity, string[] Properties = null);
         void Delete(T entity);
 
-        //Persistence
-        void Save();
+        ////Persistence
+        //void Save();
     }
 }

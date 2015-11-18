@@ -31,5 +31,10 @@ namespace CQRS.Web.Infrastructure
         {
             this._container.RegisterType<TFrom, TTo>(new ContainerControlledLifetimeManager());
         }
+
+        public void RegisterTypeWithPerRequestLife<TFrom, TTo>(bool withInterception = false) where TTo : TFrom
+        {
+            this._container.RegisterType<TFrom, TTo>(new PerRequestLifetimeManager());
+        }
     }
 }

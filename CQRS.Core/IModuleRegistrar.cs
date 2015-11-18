@@ -11,5 +11,6 @@ namespace CQRS.Core
     {
         void RegisterType<TFrom, TTo>(bool withInterception = false) where TTo : TFrom;
         void RegisterTypeWithContainerControlledLife<TFrom, TTo>(bool withInterception = false) where TTo : TFrom;
+        void RegisterTypeWithPerRequestLife<TFrom, TTo>(bool withInterception = false) where TTo : TFrom;
     }
 }

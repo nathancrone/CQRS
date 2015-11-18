@@ -944,6 +944,7 @@
     <Compile Include="Infrastructure\CommandDispatcher.cs" />
     <Compile Include="Infrastructure\ModuleLoader.cs" />
     <Compile Include="Infrastructure\ModuleRegistrar.cs" />
+    <Compile Include="Infrastructure\PerRequestLifetimeManager.cs" />
     <Compile Include="Infrastructure\QueryDispatcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

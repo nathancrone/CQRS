@@ -52,7 +52,6 @@
   <ItemGroup>
     <Compile Include="EFContext.cs" />
     <Compile Include="GenericRepository.cs" />
-    <Compile Include="IContext.cs" />
     <Compile Include="Migrations\201511171602377_InitialCreate.cs" />
     <Compile Include="Migrations\201511171602377_InitialCreate.Designer.cs">
       <DependentUpon>201511171602377_InitialCreate.cs</DependentUpon>

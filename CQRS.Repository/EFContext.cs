@@ -1,11 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration.Conventions;
+using CQRS.Core;
 using CQRS.Core.Models;
 
 namespace CQRS.Repository
 {
-    class EFContext : DbContext, IContext
+    class EFContext : DbContext, IUnitOfWork
     {
 
         public virtual DbSet<Task> Tasks { get; set; }
@@ -27,7 +28,13 @@ namespace CQRS.Repository
         public virtual DbSet<ActionTarget> ActionTargets { get; set; }
         public virtual DbSet<ActivityTarget> ActivityTargets { get; set; }
         public virtual DbSet<RequestAction> RequestActions { get; set; }
-        
+
+        public override int SaveChanges()
+        {
+            Configuration.ValidateOnSaveEnabled = false;
+            return base.SaveChanges();
+        }
+
         //using fluent api instead of attributes (avoids decorating POCO class with EF-specific attributes)
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
