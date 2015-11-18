@@ -68,8 +68,8 @@
                     <div ng-show="oneConnectionSelected()">
                         <h3>Actions...</h3>
                         <ul class="nav nav-sidebar">
-                            <li ng-repeat="a in selectedTransition.Transition.Actions"><a href="#">{{ a.Name }}</a></li>
-                            <li><a href="#">Add action...</a></li>
+                            <li ng-repeat="a in selectedTransition.Transition.Actions" ng-click="actionUpdate(a)"><a href="#">{{ a.Name }}</a></li>
+                            <li><a href="#" ng-click="actionAdd()">Add action...</a></li>
                         </ul>
                     </div>
 
@@ -106,7 +106,8 @@
 
         <script type="text/ng-template" id="transitionModal.html">
             <div class="modal-header">
-                <h3 class="modal-title">Add Transition</h3>
+                <h3 class="modal-title" ng-show="selectedTransition.TransitionId <= 0">Add Transition</h3>
+                <h3 class="modal-title" ng-show="selectedTransition.TransitionId > 0">Update Transition</h3>
             </div>
             <div class="modal-body">
                 <form role="form">
@@ -117,6 +118,29 @@
                     <div class="form-group">
                         <label for="To">To:</label>
                         <select ng-model="selectedTransition.NextStateId" ng-options="node.data.id as node.data.name for node in selectedNodes"></select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" type="button" ng-click="ok()">OK</button>
+                <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+            </div>
+        </script>
+
+        <script type="text/ng-template" id="actionModal.html">
+            <div class="modal-header">
+                <h3 class="modal-title" ng-show="selectedAction.ActionId <= 0">Add Action</h3>
+                <h3 class="modal-title" ng-show="selectedAction.ActionId > 0">Update Action</h3>
+            </div>
+            <div class="modal-body">
+                <form role="form">
+                    <div class="form-group">
+                        <label for="Name">Action Name:</label>
+                        <input type="text" class="form-control" id="Name" ng-model="selectedAction.Name">
+                    </div>
+                    <div class="form-group">
+                        <label for="Description">Description:</label>
+                        <input type="text" class="form-control" id="Description" ng-model="selectedAction.Description">
                     </div>
                 </form>
             </div>
@@ -154,6 +178,7 @@
     @Html.ActionLink(" ", "JsonSave", "State", null, new { id = "state_jsonsave", @class = "hide" })
     @Html.ActionLink(" ", "JsonSaveCoordinates", "State", null, new { id = "state_jsonsavecoordinates", @class = "hide" })
     @Html.ActionLink(" ", "JsonSave", "Transition", null, new { id = "transition_jsonsave", @class = "hide" })
+    @Html.ActionLink(" ", "JsonSave", "Action", null, new { id = "action_jsonsave", @class = "hide" })
 
     <script src="~/Scripts/jquery-1.11.3.min.js"></script>
     <script src="~/Scripts/angular.min.js"></script>
@@ -180,6 +205,7 @@
             $scope.chartViewModel = null;
             $scope.selectedState = null;
             $scope.selectedTransition = null;
+            $scope.selectedAction = null;
 
             $scope.stateAdd = function () {
 
@@ -236,11 +262,11 @@
                     svcApp.saveState($scope.selectedState).then(function (data) {
 
                         var newNodeDataModel = {
-                            id: data.StateId, 
+                            id: data.StateId,
                             name: data.Name,
                             x: data.X,
                             y: data.Y,
-                            description: data.Description, 
+                            description: data.Description,
                             inputConnectors: [],
                             outputConnectors: []
                         };
@@ -251,7 +277,7 @@
                         else {
                             $scope.chartViewModel.changeNode(newNodeDataModel);
                         }
-                        
+
                     }, function () { alert('error saving state'); });
 
                 }, function () {
@@ -306,7 +332,7 @@
                     resolve: {
                         selectedTransition: function () {
                             return $scope.selectedTransition;
-                        }, 
+                        },
                         selectedNodes: function () {
                             return selectedNodes;
                         }
@@ -351,6 +377,82 @@
 
                 });
             }
+
+
+
+
+
+
+
+
+
+
+            $scope.actionAdd = function () {
+                if ($scope.oneConnectionSelected()) {
+                    $scope.selectedAction = {
+                        ActionId: 0,
+                        ProcessId: 1,
+                        ActionTypeId: 1,
+                        Name: '',
+                        Description: 'blah'
+                    }
+
+                    var connection = $scope.chartViewModel.getSelectedConnections()[0].data;
+
+                    actionModal(connection.id);
+                }
+            };
+
+            $scope.actionUpdate = function (action) {
+                if ($scope.oneConnectionSelected()) {
+                    $scope.selectedAction = action;
+
+                    var connection = $scope.chartViewModel.getSelectedConnections()[0].data;
+
+                    actionModal(connection.id);
+                }
+            };
+
+            var actionModal = function (transitionid) {
+
+                var modalInstance = $uibModal.open({
+                    animation: true,
+                    templateUrl: 'actionModal.html',
+                    controller: 'actionModalCtrl',
+                    size: 'md',
+                    resolve: {
+                        selectedAction: function () {
+                            return $scope.selectedAction;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function (selectedAction) {
+
+                    $scope.selectedAction = selectedAction;
+
+                    svcApp.saveAction($scope.selectedAction, transitionid).then(function (data) {
+
+                    }, function () { alert('error saving action'); });
+
+                }, function () {
+
+                });
+
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             //
             // Code for the delete key.
@@ -519,6 +621,20 @@
 
         });
 
+        angular.module('app').controller('actionModalCtrl', function ($scope, $uibModalInstance, selectedAction) {
+
+            $scope.selectedAction = selectedAction;
+
+            $scope.ok = function () {
+                $uibModalInstance.close($scope.selectedAction);
+            };
+
+            $scope.cancel = function () {
+                $uibModalInstance.dismiss('cancel');
+            };
+
+        });
+
         angular.module('app').factory('svcApp', ['$http', function ($http) {
 
             var _getFlowchart = function () {
@@ -572,7 +688,26 @@
                     },
                     data: $.param({ Transition: transition })
                 }
-                
+
+                return $http(req).then(function (response) {
+                    return response.data;
+                });
+
+            }
+
+            var _saveAction = function (action, transitionid) {
+
+                action['Transitions'] = [{ ProcessId: action.ProcessId, TransitionId: transitionid }];
+
+                var req = {
+                    method: 'POST',
+                    url: $("#action_jsonsave").attr("href"),
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    data: $.param({ data: action })
+                }
+
                 return $http(req).then(function (response) {
                     return response.data;
                 });
@@ -600,8 +735,9 @@
                 getFlowchart: _getFlowchart,
                 getTransition: _getTransition,
                 saveState: _saveState,
-                saveStateCoordinates: _saveStateCoordinates, 
-                saveTransition: _saveTransition
+                saveStateCoordinates: _saveStateCoordinates,
+                saveTransition: _saveTransition,
+                saveAction: _saveAction
             }
 
         }]);

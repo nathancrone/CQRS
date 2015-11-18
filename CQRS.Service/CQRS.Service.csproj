@@ -41,10 +41,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandHandlers\SaveActionCommandHandler.cs" />
     <Compile Include="CommandHandlers\SaveTransitionCommandHandler.cs" />
     <Compile Include="CommandHandlers\SaveStateCoordiatesCommandHandler.cs" />
     <Compile Include="CommandHandlers\SaveStateCommandHandler.cs" />
     <Compile Include="CommandHandlers\ChangeTaskStatusCommandHandler.cs" />
+    <Compile Include="Commands\SaveActionCommand.cs" />
     <Compile Include="Commands\SaveTransitionCommand.cs" />
     <Compile Include="Commands\SaveStateCoordinatesCommand.cs" />
     <Compile Include="Commands\SaveStateCommand.cs" />
