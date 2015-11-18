@@ -19,6 +19,7 @@ namespace CQRS.Core
         void Insert(T entity);
         void Update(T entity, string[] Properties = null);
         void Delete(T entity);
+        void Ignore(T entity);
 
         ////Persistence
         //void Save();

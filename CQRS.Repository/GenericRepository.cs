@@ -87,6 +87,16 @@ namespace CQRS.Repository
             _dbSet.Remove(entity);
         }
 
+        public void Ignore(T entity)
+        {
+            if (((DbContext)_context).Entry(entity).State == EntityState.Detached)
+            {
+                _dbSet.Attach(entity);
+            }
+
+            ((DbContext)_context).Entry(entity).State = EntityState.Unchanged;
+        }
+
         //public void Save()
         //{
         //    ((DbContext)_context).Configuration.ValidateOnSaveEnabled = false;

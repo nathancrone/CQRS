@@ -22,6 +22,7 @@ namespace CQRS.Service
             registrar.RegisterType<ICommandHandler<SaveStateCommand>, SaveStateCommandHandler>();
             registrar.RegisterType<ICommandHandler<SaveStateCoordinatesCommand>, SaveStateCoordinatesCommandHandler>();
             registrar.RegisterType<ICommandHandler<SaveTransitionCommand>, SaveTransitionCommandHandler>();
+            registrar.RegisterType<ICommandHandler<SaveActionCommand>, SaveActionCommandHandler>();
         }
     }
 }

@@ -25,7 +25,7 @@ namespace CQRS.Web.Controllers
         public ActionResult JsonSave(SaveActionCommand command)
         {
             _commandDispatcher.Dispatch(command);
-            return Content(JsonConvert.SerializeObject(command.data), "application/json");
+            return Content(JsonConvert.SerializeObject(command.data, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore, PreserveReferencesHandling = PreserveReferencesHandling.Objects }), "application/json");
         }
     }
 }
