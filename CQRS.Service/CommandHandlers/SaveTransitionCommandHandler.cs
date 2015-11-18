@@ -8,13 +8,11 @@ namespace CQRS.Service.CommandHandlers
 {
     public class SaveTransitionCommandHandler : ICommandHandler<SaveTransitionCommand>
     {
-        private IUnitOfWork _unitOfWork;
         private readonly IGenericRepository<Transition> _transitionRepository;
 
-        public SaveTransitionCommandHandler(IUnitOfWork unitOfWork, IGenericRepository<Transition> transitionRepository)
+        public SaveTransitionCommandHandler(IGenericRepository<Transition> transitionRepository)
         {
             if (transitionRepository == null) { throw new ArgumentNullException("transitionRepository"); }
-            _unitOfWork = unitOfWork;
             _transitionRepository = transitionRepository;
         }
 
@@ -31,8 +29,8 @@ namespace CQRS.Service.CommandHandlers
             {
                 _transitionRepository.Update(command.Transition);
             }
-
-            _unitOfWork.SaveChanges();
+            
+            _transitionRepository.Save();
         }
 
     }

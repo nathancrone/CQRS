@@ -8,13 +8,11 @@ namespace CQRS.Service.CommandHandlers
 {
     public class SaveActionCommandHandler : ICommandHandler<SaveActionCommand>
     {
-        private IUnitOfWork _unitOfWork;
         private readonly IGenericRepository<Models.Action> _actionRepository;
 
-        public SaveActionCommandHandler(IUnitOfWork unitOfWork, IGenericRepository<Models.Action> actionRepository)
+        public SaveActionCommandHandler(IGenericRepository<Models.Action> actionRepository)
         {
             if (actionRepository == null) { throw new ArgumentNullException("actionRepository"); }
-            _unitOfWork = unitOfWork;
             _actionRepository = actionRepository;
         }
 
@@ -31,8 +29,8 @@ namespace CQRS.Service.CommandHandlers
             {
                 _actionRepository.Update(command.data);
             }
-
-            _unitOfWork.SaveChanges();
+            
+            _actionRepository.Save();
         }
 
     }

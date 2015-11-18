@@ -1,12 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration.Conventions;
-using CQRS.Core;
 using CQRS.Core.Models;
 
 namespace CQRS.Repository
 {
-    class EFContext : DbContext, IUnitOfWork
+    class EFContext : DbContext, IContext
     {
 
         public virtual DbSet<Task> Tasks { get; set; }

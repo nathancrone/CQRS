@@ -9,10 +9,10 @@ namespace CQRS.Repository
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
-        IUnitOfWork _context;
+        IContext _context;
         DbSet<T> _dbSet;
 
-        public GenericRepository(IUnitOfWork context)
+        public GenericRepository(IContext context)
         {
             _context = context;
             _dbSet = ((DbContext)_context).Set<T>();
@@ -42,11 +42,11 @@ namespace CQRS.Repository
 
             if (orderBy != null)
             {
-                return orderBy(query).AsNoTracking().ToList();
+                return orderBy(query).ToList();
             }
             else
             {
-                return query.AsNoTracking().ToList();
+                return query.ToList();
             }
         }
 
@@ -87,11 +87,11 @@ namespace CQRS.Repository
             _dbSet.Remove(entity);
         }
 
-        //public void Save()
-        //{
-        //    ((DbContext)_context).Configuration.ValidateOnSaveEnabled = false;
-        //    ((DbContext)_context).SaveChanges();
-        //}
+        public void Save()
+        {
+            ((DbContext)_context).Configuration.ValidateOnSaveEnabled = false;
+            ((DbContext)_context).SaveChanges();
+        }
 
         #region IDisposable Support
         private bool disposed = false;
