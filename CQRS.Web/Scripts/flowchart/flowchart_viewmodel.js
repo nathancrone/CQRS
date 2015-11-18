@@ -200,11 +200,9 @@ var flowchart = {
 						flowchart.computeConnectorY(connectorsViewModel.length), this);
 
 			connectorsDataModel.push(connectorDataModel);
-			console.log(connectorsDataModel);
 
 			// Add to node's view model.
 			connectorsViewModel.push(connectorViewModel);
-			console.log(connectorsViewModel);
 		}
 
 		this.removeInputConnector = function (name) {

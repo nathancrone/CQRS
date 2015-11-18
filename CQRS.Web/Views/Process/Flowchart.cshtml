@@ -433,6 +433,13 @@
 
                     svcApp.saveAction($scope.selectedAction, transitionid).then(function (data) {
 
+                        if ($scope.oneConnectionSelected()) {
+                            var selectedConnection = $scope.chartViewModel.getSelectedConnections()[0];
+                            svcApp.getTransition(selectedConnection.data.id).then(function (data) {
+                                $scope.selectedTransition = data;
+                            }, function () { });
+                        }
+
                     }, function () { alert('error saving action'); });
 
                 }, function () {
