@@ -8,11 +8,13 @@ namespace CQRS.Service.CommandHandlers
 {
     public class SaveStateCommandHandler : ICommandHandler<SaveStateCommand>
     {
+        private IUnitOfWork _unitOfWork;
         private readonly IGenericRepository<State> _stateRepository;
 
-        public SaveStateCommandHandler(IGenericRepository<State> stateRepository)
+        public SaveStateCommandHandler(IUnitOfWork unitOfWork, IGenericRepository<State> stateRepository)
         {
             if (stateRepository == null) { throw new ArgumentNullException("stateRepository"); }
+            _unitOfWork = unitOfWork;
             _stateRepository = stateRepository;
         }
 
@@ -29,8 +31,8 @@ namespace CQRS.Service.CommandHandlers
             {
                 _stateRepository.Update(command.State);
             }
-            
-            _stateRepository.Save();
+
+            _unitOfWork.SaveChanges();
         }
 
     }

@@ -50,6 +50,7 @@
     <Compile Include="IQueryDispatcher.cs" />
     <Compile Include="IQueryHandler.cs" />
     <Compile Include="IQueryResult.cs" />
+    <Compile Include="IUnitOfWork.cs" />
     <Compile Include="Models\Action.cs" />
     <Compile Include="Models\ActionTarget.cs" />
     <Compile Include="Models\ActionType.cs" />
