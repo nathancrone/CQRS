@@ -43,6 +43,7 @@
     <Compile Include="ICommand.cs" />
     <Compile Include="ICommandDispatcher.cs" />
     <Compile Include="ICommandHandler.cs" />
+    <Compile Include="IContext.cs" />
     <Compile Include="IGenericRepository.cs" />
     <Compile Include="IModuleInit.cs" />
     <Compile Include="IModuleRegistrar.cs" />
