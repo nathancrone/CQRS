@@ -713,7 +713,7 @@
             };
 
             $scope.processSelected = function () {
-                return $scope.selectedProcess != null;
+                return $scope.selectedProcess != null && $scope.selectedProcess.ProcessId != 0;
             }
 
             $scope.oneNodeSelected = function () {
