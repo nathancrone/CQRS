@@ -18,7 +18,11 @@ namespace CQRS.Service
             registrar.RegisterType<IQueryHandler<TasksByStatusQuery, TasksByStatusQueryResult>, TasksByStatusQueryHandler>();
             registrar.RegisterType<IQueryHandler<ByIdQuery, ProcessByIdQueryResult>, ProcessByIdQueryHandler>();
             registrar.RegisterType<IQueryHandler<ByIdQuery, TransitionByIdQueryResult>, TransitionByIdQueryHandler>();
+            registrar.RegisterType<IQueryHandler<EmptyQuery, ProcessesAllQueryResult>, ProcessesAllQueryHandler>();
+            registrar.RegisterType<IQueryHandler<EmptyQuery, StateTypesAllQueryResult>, StateTypesAllQueryHandler>();
+            registrar.RegisterType<IQueryHandler<EmptyQuery, ActionTypesAllQueryResult>, ActionTypesAllQueryHandler>();
 
+            registrar.RegisterType<ICommandHandler<SaveProcessCommand>, SaveProcessCommandHandler>();
             registrar.RegisterType<ICommandHandler<SaveStateCommand>, SaveStateCommandHandler>();
             registrar.RegisterType<ICommandHandler<SaveStateCoordinatesCommand>, SaveStateCoordinatesCommandHandler>();
             registrar.RegisterType<ICommandHandler<SaveTransitionCommand>, SaveTransitionCommandHandler>();

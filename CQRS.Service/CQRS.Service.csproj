@@ -42,22 +42,31 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandHandlers\SaveActionCommandHandler.cs" />
+    <Compile Include="CommandHandlers\SaveProcessCommandHandler.cs" />
     <Compile Include="CommandHandlers\SaveTransitionCommandHandler.cs" />
     <Compile Include="CommandHandlers\SaveStateCoordiatesCommandHandler.cs" />
     <Compile Include="CommandHandlers\SaveStateCommandHandler.cs" />
     <Compile Include="CommandHandlers\ChangeTaskStatusCommandHandler.cs" />
     <Compile Include="Commands\SaveActionCommand.cs" />
+    <Compile Include="Commands\SaveProcessCommand.cs" />
     <Compile Include="Commands\SaveTransitionCommand.cs" />
     <Compile Include="Commands\SaveStateCoordinatesCommand.cs" />
     <Compile Include="Commands\SaveStateCommand.cs" />
     <Compile Include="Commands\ChangeTaskStatusCommand.cs" />
     <Compile Include="ModuleInit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Queries\EmptyQuery.cs" />
     <Compile Include="Queries\ByIdQuery.cs" />
     <Compile Include="Queries\TasksByStatusQuery.cs" />
+    <Compile Include="QueryHandlers\ActionTypesAllQueryHandler.cs" />
+    <Compile Include="QueryHandlers\ProcessesAllQueryHandler.cs" />
+    <Compile Include="QueryHandlers\StateTypesAllQueryHandler.cs" />
     <Compile Include="QueryHandlers\TransitionByIdQueryHandler.cs" />
     <Compile Include="QueryHandlers\ProcessByIdQueryHandler.cs" />
     <Compile Include="QueryHandlers\TasksByStatusQueryHandler.cs" />
+    <Compile Include="QueryResults\ActionTypesAllQueryResult.cs" />
+    <Compile Include="QueryResults\ProcessesAllQueryResult.cs" />
+    <Compile Include="QueryResults\StateTypesAllQueryResult.cs" />
     <Compile Include="QueryResults\TransitionByIdQueryResult.cs" />
     <Compile Include="QueryResults\ProcessByIdQueryResult.cs" />
     <Compile Include="QueryResults\TasksByStatusQueryResult.cs" />

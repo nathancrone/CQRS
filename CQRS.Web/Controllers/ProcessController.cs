@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CQRS.Core;
+using CQRS.Service.Commands;
 using CQRS.Service.Queries;
 using CQRS.Service.QueryResults;
 using System.Web.Mvc;
@@ -64,7 +65,28 @@ namespace CQRS.Web.Controllers
                 }).ToArray()
             };
 
-            return Content(JsonConvert.SerializeObject(data), "application/json");
+            return Content(JsonConvert.SerializeObject(
+                new {
+                    Process = new {
+                        ProcessId = result.Process.ProcessId, 
+                        Name = result.Process.Name
+                    },
+                    ViewModel = data }
+                ), "application/json");
+        }
+
+        [HttpGet]
+        public ActionResult JsonAll(EmptyQuery query)
+        {
+            var result = _queryDispatcher.Dispatch<EmptyQuery, ProcessesAllQueryResult>(query);
+            return Content(JsonConvert.SerializeObject(result), "application/json");
+        }
+
+        [HttpPost]
+        public ActionResult JsonSave(SaveProcessCommand command)
+        {
+            _commandDispatcher.Dispatch(command);
+            return Content(JsonConvert.SerializeObject(command.Process), "application/json");
         }
     }
 }

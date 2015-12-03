@@ -15,7 +15,9 @@ namespace CQRS.Repository
             registrar.RegisterType<IGenericRepository<Process>, GenericRepository<Process>>();
             registrar.RegisterType<IGenericRepository<Transition>, GenericRepository<Transition>>();
             registrar.RegisterType<IGenericRepository<State>, GenericRepository<State>>();
+            registrar.RegisterType<IGenericRepository<StateType>, GenericRepository<StateType>>();
             registrar.RegisterType<IGenericRepository<Action>, GenericRepository<Action>>();
+            registrar.RegisterType<IGenericRepository<ActionType>, GenericRepository<ActionType>>();
         }
     }
 }

@@ -20,7 +20,6 @@ namespace CQRS.Web.Controllers
         {
             _queryDispatcher = queryDispatcher;
             _commandDispatcher = commandDispatcher;
-
         }
 
         [HttpPost]

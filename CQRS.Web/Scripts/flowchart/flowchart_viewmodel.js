@@ -628,6 +628,7 @@ var flowchart = {
 		    if (node) {
 		        node.data.name = nodeDataModel.name;
 		        node.data.description = nodeDataModel.description;
+		        node.data.statetypeid = nodeDataModel.statetypeid;
 		        node.data.x = nodeDataModel.x;
 		        node.data.y = nodeDataModel.y;
 		    }

@@ -31,10 +31,6 @@ namespace CQRS.Web.Controllers
         [HttpPost]
         public ActionResult JsonSaveCoordinates(SaveStateCoordinatesCommand command)
         {
-
-            //var blah = new int[2, 3] { { 1, 10, 10 }, { 2, 15, 15 } };
-
-
             _commandDispatcher.Dispatch(command);
             return Content(JsonConvert.SerializeObject(new { }), "application/json");
         }
