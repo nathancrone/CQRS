@@ -16,7 +16,7 @@
     <RootNamespace>CQRS.Web</RootNamespace>
     <AssemblyName>CQRS.Web</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
-    <UseIISExpress>true</UseIISExpress>
+    <UseIISExpress>false</UseIISExpress>
     <IISExpressSSLPort />
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
@@ -1000,7 +1000,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>64395</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:64395/</IISUrl>
+          <IISUrl>http://localhost/CQRS</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

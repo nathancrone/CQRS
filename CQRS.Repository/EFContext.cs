@@ -9,6 +9,10 @@ namespace CQRS.Repository
     class EFContext : DbContext, IUnitOfWork
     {
 
+        public EFContext() : base("name=WFModel")
+        {
+        }
+
         public virtual DbSet<Task> Tasks { get; set; }
 
         public virtual DbSet<Process> Processes { get; set; }
