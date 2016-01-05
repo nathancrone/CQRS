@@ -6,7 +6,7 @@ using CQRS.Core.Models;
 
 namespace CQRS.Repository
 {
-    class EFContext : DbContext, IUnitOfWork
+    public class EFContext : DbContext, IUnitOfWork
     {
 
         public EFContext() : base("name=WFModel")
@@ -272,6 +272,10 @@ namespace CQRS.Repository
             modelBuilder.Entity<User>()
                 .HasMany(x => x.RequestNotes)
                 .WithRequired(x => x.User);
+
+            modelBuilder.Entity<Request>()
+                .HasMany(x => x.RequestActions)
+                .WithRequired(x => x.Request);
 
             modelBuilder.Entity<StateType>()
                 .HasMany(x => x.States)

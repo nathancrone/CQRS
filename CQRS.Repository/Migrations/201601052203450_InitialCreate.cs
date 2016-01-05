@@ -16,15 +16,12 @@ namespace CQRS.Repository.Migrations
                         ActionTypeId = c.Int(nullable: false),
                         Name = c.String(nullable: false, maxLength: 100),
                         Description = c.String(nullable: false, maxLength: 100),
-                        State_StateId = c.Int(),
                     })
                 .PrimaryKey(t => t.ActionId)
                 .ForeignKey("dbo.ActionTypes", t => t.ActionTypeId, cascadeDelete: true)
                 .ForeignKey("dbo.Processes", t => t.ProcessId, cascadeDelete: true)
-                .ForeignKey("dbo.States", t => t.State_StateId)
                 .Index(t => t.ProcessId)
-                .Index(t => t.ActionTypeId)
-                .Index(t => t.State_StateId);
+                .Index(t => t.ActionTypeId);
             
             CreateTable(
                 "dbo.ActionTypes",
@@ -203,6 +200,7 @@ namespace CQRS.Repository.Migrations
                         UserId = c.Int(),
                         Title = c.String(nullable: false, maxLength: 100),
                         DateRequested = c.DateTime(nullable: false),
+                        CurrentStateId = c.Int(),
                         User_UserId = c.Int(),
                     })
                 .PrimaryKey(t => t.RequestId)
@@ -210,6 +208,25 @@ namespace CQRS.Repository.Migrations
                 .ForeignKey("dbo.Users", t => t.User_UserId)
                 .Index(t => t.ProcessId)
                 .Index(t => t.User_UserId);
+            
+            CreateTable(
+                "dbo.RequestActions",
+                c => new
+                    {
+                        RequestActionId = c.Int(nullable: false, identity: true),
+                        RequestId = c.Int(nullable: false),
+                        ActionId = c.Int(),
+                        TransitionId = c.Int(),
+                        IsActive = c.Boolean(nullable: false),
+                        IsComplete = c.Boolean(nullable: false),
+                    })
+                .PrimaryKey(t => t.RequestActionId)
+                .ForeignKey("dbo.Actions", t => t.ActionId)
+                .ForeignKey("dbo.Transitions", t => t.TransitionId)
+                .ForeignKey("dbo.Requests", t => t.RequestId, cascadeDelete: true)
+                .Index(t => t.RequestId)
+                .Index(t => t.ActionId)
+                .Index(t => t.TransitionId);
             
             CreateTable(
                 "dbo.RequestDatas",
@@ -223,25 +240,6 @@ namespace CQRS.Repository.Migrations
                 .PrimaryKey(t => t.RequestDataId)
                 .ForeignKey("dbo.Requests", t => t.RequestId, cascadeDelete: true)
                 .Index(t => t.RequestId);
-            
-            CreateTable(
-                "dbo.RequestActions",
-                c => new
-                    {
-                        RequestActionId = c.Int(nullable: false, identity: true),
-                        RequestId = c.Int(),
-                        ActionId = c.Int(),
-                        TransitionId = c.Int(),
-                        IsActive = c.Boolean(nullable: false),
-                        IsComplete = c.Boolean(nullable: false),
-                    })
-                .PrimaryKey(t => t.RequestActionId)
-                .ForeignKey("dbo.Actions", t => t.ActionId)
-                .ForeignKey("dbo.Requests", t => t.RequestId)
-                .ForeignKey("dbo.Transitions", t => t.TransitionId)
-                .Index(t => t.RequestId)
-                .Index(t => t.ActionId)
-                .Index(t => t.TransitionId);
             
             CreateTable(
                 "dbo.Tasks",
@@ -336,9 +334,6 @@ namespace CQRS.Repository.Migrations
         
         public override void Down()
         {
-            DropForeignKey("dbo.RequestActions", "TransitionId", "dbo.Transitions");
-            DropForeignKey("dbo.RequestActions", "RequestId", "dbo.Requests");
-            DropForeignKey("dbo.RequestActions", "ActionId", "dbo.Actions");
             DropForeignKey("dbo.Transitions", "ProcessId", "dbo.Processes");
             DropForeignKey("dbo.States", "ProcessId", "dbo.Processes");
             DropForeignKey("dbo.ProcessAdmin", "ProcessId", "dbo.Users");
@@ -352,6 +347,9 @@ namespace CQRS.Repository.Migrations
             DropForeignKey("dbo.RequestStakeholder", "UserId", "dbo.Requests");
             DropForeignKey("dbo.RequestNotes", "RequestId", "dbo.Requests");
             DropForeignKey("dbo.RequestDatas", "RequestId", "dbo.Requests");
+            DropForeignKey("dbo.RequestActions", "RequestId", "dbo.Requests");
+            DropForeignKey("dbo.RequestActions", "TransitionId", "dbo.Transitions");
+            DropForeignKey("dbo.RequestActions", "ActionId", "dbo.Actions");
             DropForeignKey("dbo.Requests", "ProcessId", "dbo.Processes");
             DropForeignKey("dbo.ActivityTargets", "GroupId", "dbo.Groups");
             DropForeignKey("dbo.ActionTargets", "GroupId", "dbo.Groups");
@@ -366,7 +364,6 @@ namespace CQRS.Repository.Migrations
             DropForeignKey("dbo.States", "StateTypeId", "dbo.StateTypes");
             DropForeignKey("dbo.StateActivity", "StateId", "dbo.Activities");
             DropForeignKey("dbo.StateActivity", "ActivityId", "dbo.States");
-            DropForeignKey("dbo.Actions", "State_StateId", "dbo.States");
             DropForeignKey("dbo.Activities", "ProcessId", "dbo.Processes");
             DropForeignKey("dbo.Activities", "ActivityTypeId", "dbo.ActivityTypes");
             DropForeignKey("dbo.ActionTargets", "TargetId", "dbo.Targets");
@@ -385,10 +382,10 @@ namespace CQRS.Repository.Migrations
             DropIndex("dbo.TransitionAction", new[] { "ActionId" });
             DropIndex("dbo.StateActivity", new[] { "StateId" });
             DropIndex("dbo.StateActivity", new[] { "ActivityId" });
+            DropIndex("dbo.RequestDatas", new[] { "RequestId" });
             DropIndex("dbo.RequestActions", new[] { "TransitionId" });
             DropIndex("dbo.RequestActions", new[] { "ActionId" });
             DropIndex("dbo.RequestActions", new[] { "RequestId" });
-            DropIndex("dbo.RequestDatas", new[] { "RequestId" });
             DropIndex("dbo.Requests", new[] { "User_UserId" });
             DropIndex("dbo.Requests", new[] { "ProcessId" });
             DropIndex("dbo.RequestNotes", new[] { "UserId" });
@@ -407,7 +404,6 @@ namespace CQRS.Repository.Migrations
             DropIndex("dbo.ActionTargets", new[] { "TargetId" });
             DropIndex("dbo.ActionTargets", new[] { "ActionId" });
             DropIndex("dbo.Groups", new[] { "ProcessId" });
-            DropIndex("dbo.Actions", new[] { "State_StateId" });
             DropIndex("dbo.Actions", new[] { "ActionTypeId" });
             DropIndex("dbo.Actions", new[] { "ProcessId" });
             DropTable("dbo.ProcessAdmin");
@@ -417,8 +413,8 @@ namespace CQRS.Repository.Migrations
             DropTable("dbo.TransitionAction");
             DropTable("dbo.StateActivity");
             DropTable("dbo.Tasks");
-            DropTable("dbo.RequestActions");
             DropTable("dbo.RequestDatas");
+            DropTable("dbo.RequestActions");
             DropTable("dbo.Requests");
             DropTable("dbo.RequestNotes");
             DropTable("dbo.Users");

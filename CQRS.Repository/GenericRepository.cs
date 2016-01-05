@@ -12,6 +12,14 @@ namespace CQRS.Repository
         IUnitOfWork _context;
         DbSet<T> _dbSet;
 
+        public GenericRepository()
+        {
+            _context = new EFContext();
+            _dbSet = ((DbContext)_context).Set<T>();
+
+            var ensureDLLIsCopied = System.Data.Entity.SqlServer.SqlProviderServices.Instance;
+        }
+
         public GenericRepository(IUnitOfWork context)
         {
             _context = context;

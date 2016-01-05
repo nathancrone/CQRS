@@ -18,7 +18,7 @@ namespace CQRS.Core.Models
         public ICollection<Transition> TransitionsFrom { get; set; }
         public ICollection<Transition> TransitionsTo { get; set; }
 
-        public ICollection<Action> Actions { get; set; }
+        //public ICollection<Action> Actions { get; set; }
         public ICollection<Activity> Activities { get; set; }
     }
 }

@@ -10,6 +10,7 @@ namespace CQRS.Core.Models
         public int? UserId { get; set; }
         public string Title { get; set; }
         public DateTime DateRequested { get; set; }
+        public int? CurrentStateId { get; set; }
 
         public Process Process { get; set; }
         public User User { get; set; }
@@ -17,5 +18,6 @@ namespace CQRS.Core.Models
         public ICollection<User> Stakeholders { get; set; }
         public ICollection<RequestNote> RequestNotes { get; set; }
         public ICollection<RequestData> RequestData { get; set; }
+        public ICollection<RequestAction> RequestActions { get; set; }
     }
 }
