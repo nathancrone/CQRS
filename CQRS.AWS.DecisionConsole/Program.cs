@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 namespace CQRS.AWS.DecisionConsole
 {
@@ -6,10 +7,13 @@ namespace CQRS.AWS.DecisionConsole
     {
         public static void Main(string[] args)
         {
-            StartWorkflowExecutionProcessor processor = new StartWorkflowExecutionProcessor();
-            //processor.RequestInitialize(1);
-            //processor.RequestActionComplete(1);
-            Console.WriteLine("done");
+            new DecisionWorker().Start(new CancellationTokenSource().Token);
+
+            StartWorkflowExecutionProcessor _startProcessor = new StartWorkflowExecutionProcessor();
+            _startProcessor.StartWorkflowExecution(1);
+
+            //Console.WriteLine("done");
+
             Console.ReadLine();
         }
     }

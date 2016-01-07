@@ -42,26 +42,34 @@ namespace CQRS.AWS.DecisionConsole.Shared
             includes1.Add(x => x.RequestActions);
             Request RequestCurrent = _requestRepository.Get(filter: x => x.RequestId == RequestId, orderBy: null, includes: includes1.ToArray()).FirstOrDefault();
 
-            if (RequestCurrent.CurrentStateId == null)
-            {
-                //find the start state for this request's process (there should only be one start state per process)...
-                State StateStart = _stateRepository.Get().Where(x => x.ProcessId == RequestCurrent.ProcessId && x.StateTypeId == 1).FirstOrDefault();
+            //find the start state for this request's process (there should only be one start state per process)...
+            State StateStart = _stateRepository.Get().Where(x => x.ProcessId == RequestCurrent.ProcessId && x.StateTypeId == 1).FirstOrDefault();
 
-                RequestSetCurrentState(RequestId, StateStart.StateId ?? 0);
-            }
+            RequestSetCurrentState(RequestId, StateStart.StateId ?? 0);
         }
 
         public void RequestFollowTransition(int RequestId, int TransitionId)
         {
-            //get the "request"...
-            Request RequestCurrent = _requestRepository.Get().Where(x => x.RequestId == RequestId).FirstOrDefault();
+
+            //get the "request" (include "request actions")...
+            List<Expression<Func<Request, object>>> includes1 = new List<Expression<Func<Request, object>>>();
+            includes1.Add(x => x.RequestActions);
+            Request RequestCurrent = _requestRepository.Get(filter: x => x.RequestId == RequestId, orderBy: null, includes: includes1.ToArray()).FirstOrDefault();
 
             //get the "transition"...
             Transition TransitionToFollow = _transitionRepository.Get().Where(x => x.TransitionId == TransitionId).FirstOrDefault();
 
-            //if the request's current state matches the transition and next state is not null
+            //if the request's current state matches the transition's current state and the transtion's next state is not null
             if (RequestCurrent.CurrentStateId == TransitionToFollow.CurrentStateId && TransitionToFollow.NextStateId != null)
             {
+                //setting IsActive = 0, e.g. all actions
+                foreach (RequestAction ra in RequestCurrent.RequestActions.Where(x => x.IsActive))
+                {
+                    ra.IsActive = false;
+                }
+
+                _unitOfWork.SaveChanges();
+
                 RequestSetCurrentState(RequestId, TransitionToFollow.NextStateId ?? 0);
             }
         }
@@ -71,49 +79,68 @@ namespace CQRS.AWS.DecisionConsole.Shared
             //get the request action
             RequestAction RequestActionCompleted = _requestActionRepository.Get().Where(x => x.RequestActionId == RequestActionId).FirstOrDefault();
 
-            //get the requestid
-            int RequestId = RequestActionCompleted.RequestId ?? 0;
+            ////get the requestid
+            //int RequestId = RequestActionCompleted.RequestId ?? 0;
 
-            //get the actionid
-            int ActionId = RequestActionCompleted.ActionId ?? 0;
+            ////get the actionid
+            //int ActionId = RequestActionCompleted.ActionId ?? 0;
 
-            //get the transitionid
-            int TransitionId = RequestActionCompleted.TransitionId ?? 0;
+            ////get the transitionid
+            //int TransitionId = RequestActionCompleted.TransitionId ?? 0;
 
             //set that entry's IsActive = 0 and IsCompleted = 1.
-            RequestActionCompleted.IsActive = false;
+            //RequestActionCompleted.IsActive = false;
             RequestActionCompleted.IsComplete = true;
 
             //save the change
             _unitOfWork.SaveChanges();
 
-            //After marking the submitted Action as completed, we check all Actions for that Transition in that Request. 
-            //If all RequestActions are marked as Completed, then we disable all remaining actions 
-            //(by setting IsActive = 0, e.g. all actions for Transitions that were not matched).
+            ////After marking the submitted Action as completed, we check all Actions for that Transition in that Request. 
+            ////If all RequestActions are marked as Completed, then we disable all remaining actions 
+            ////(by setting IsActive = 0, e.g. all actions for Transitions that were not matched).
 
-            //get the "request" (include "request actions")...
-            List<Expression<Func<Request, object>>> includes1 = new List<Expression<Func<Request, object>>>();
-            includes1.Add(x => x.RequestActions);
-            Request RequestCurrent = _requestRepository.Get(filter: x => x.RequestId == RequestId, orderBy: null, includes: includes1.ToArray()).FirstOrDefault();
+            ////get the "request" (include "request actions")...
+            //List<Expression<Func<Request, object>>> includes1 = new List<Expression<Func<Request, object>>>();
+            //includes1.Add(x => x.RequestActions);
+            //Request RequestCurrent = _requestRepository.Get(filter: x => x.RequestId == RequestId, orderBy: null, includes: includes1.ToArray()).FirstOrDefault();
 
-            //If all RequestActions are marked as Completed
-            if (RequestCurrent.RequestActions.Where(x => x.ActionId == ActionId && x.TransitionId == TransitionId).All(x => x.IsComplete))
+            ////If all RequestActions are marked as Completed
+            //if (RequestCurrent.RequestActions.Where(x => x.ActionId == ActionId && x.TransitionId == TransitionId).All(x => x.IsComplete))
+            //{
+            //    //setting IsActive = 0, e.g. all actions for Transitions that were not matched
+            //    foreach (RequestAction ra in RequestCurrent.RequestActions.Where(x => x.IsActive))
+            //    {
+            //        ra.IsActive = false;
+            //    }
+
+            //    _unitOfWork.SaveChanges();
+
+            //    //follow the transition
+            //    Transition TransitionToFollow = _transitionRepository.Get().Where(x => x.TransitionId == TransitionId).FirstOrDefault();
+            //    if (TransitionToFollow.NextStateId != null)
+            //    {
+            //        RequestSetCurrentState(RequestId, TransitionToFollow.NextStateId ?? 0);
+            //    }
+            //}
+        }
+
+        //should return null if there are no completed transitions for the request
+        //otherwise it should return the id of the first transition found with all completed actions
+        //hopefully there should only ever be one transition to take.
+        public Transition GetCompletedTransitionForRequest(int RequestId)
+        {
+            List<RequestAction> RequestActionsActive = _requestActionRepository.Get().Where(x => x.RequestId == RequestId && x.IsActive).ToList();
+
+            Transition Transition = null;
+
+            IEnumerable<IGrouping<int?, RequestAction>> result = RequestActionsActive.GroupBy(x => x.TransitionId).Where(x => x.All(y => y.IsComplete));
+
+            if (result.Count() != 0)
             {
-                //setting IsActive = 0, e.g. all actions for Transitions that were not matched
-                foreach (RequestAction ra in RequestCurrent.RequestActions.Where(x => x.IsActive))
-                {
-                    ra.IsActive = false;
-                }
-
-                _unitOfWork.SaveChanges();
-
-                //follow the transition
-                Transition TransitionToFollow = _transitionRepository.Get().Where(x => x.TransitionId == TransitionId).FirstOrDefault();
-                if (TransitionToFollow.NextStateId != null)
-                {
-                    RequestSetCurrentState(RequestId, TransitionToFollow.NextStateId ?? 0);
-                }
+                Transition = _transitionRepository.Get().Where(x => x.TransitionId == result.FirstOrDefault().Key.Value).FirstOrDefault();
             }
+
+            return Transition;
         }
 
         public void RequestSetCurrentState(int RequestId, int StateId)
@@ -123,7 +150,7 @@ namespace CQRS.AWS.DecisionConsole.Shared
             includes1.Add(x => x.RequestActions);
             Request RequestCurrent = _requestRepository.Get(filter: x => x.RequestId == RequestId, orderBy: null, includes: includes1.ToArray()).FirstOrDefault();
 
-            //find the new state...
+            //find the new state (inclode associated transitions and their actions)...
             List<Expression<Func<State, object>>> includes2 = new List<Expression<Func<State, object>>>();
             includes2.Add(x => x.TransitionsFrom);
             includes2.Add(x => x.TransitionsFrom.Select(y => y.Actions));
@@ -149,6 +176,16 @@ namespace CQRS.AWS.DecisionConsole.Shared
             }
 
             _unitOfWork.SaveChanges();
+        }
+
+        public State GetState(int StateId)
+        {
+            //find the new state (include associated transitions)...
+            List<Expression<Func<State, object>>> includes2 = new List<Expression<Func<State, object>>>();
+            includes2.Add(x => x.TransitionsFrom);
+            includes2.Add(x => x.TransitionsTo);
+            State State = _stateRepository.Get(filter: x => x.StateId == StateId, orderBy: null, includes: includes2.ToArray()).FirstOrDefault();
+            return State;
         }
 
         public Request GetRequestWithActions(int RequestId)
