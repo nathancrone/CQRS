@@ -126,7 +126,10 @@ namespace CQRS.AWS.Activity1Console
         Common.ActivityTaskCompletedResult ProcessTask(string input)
         {
             Common.ActivityTaskCompletedResult activityState = Common.Utils.DeserializeFromJSON<Common.ActivityTaskCompletedResult>(input);
-            Console.WriteLine(string.Format("Processing activity task RequestActionId {0}...", activityState.RequestActionId));
+
+            
+
+            Console.WriteLine(string.Format("Processing activity task RequestActionId {0}...this could be sending an email or anything we want really.", activityState.RequestActionId));
 
             ////var getRequest = new GetObjectRequest
             ////{
