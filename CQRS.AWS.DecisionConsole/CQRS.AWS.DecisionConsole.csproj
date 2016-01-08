@@ -124,11 +124,9 @@
     <Compile Include="DecisionWorker.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Shared\ActivityTaskCompletedResult.cs" />
     <Compile Include="Shared\Constants.cs" />
     <Compile Include="Shared\HistoryIterator.cs" />
     <Compile Include="Shared\WFTracking.cs" />
-    <Compile Include="Shared\WorkflowExecutionStartedInput.cs" />
     <Compile Include="StartWorkflowExecutionProcessor.cs" />
   </ItemGroup>
   <ItemGroup>

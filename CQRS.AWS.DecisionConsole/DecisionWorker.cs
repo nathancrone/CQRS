@@ -88,8 +88,8 @@ namespace CQRS.AWS.DecisionConsole
             Console.WriteLine("Processing decision task ...");
             List<Decision> decisions = new List<Decision>();
             
-            List<Shared.ActivityTaskCompletedResult> activityStates;
-            Shared.WorkflowExecutionStartedInput startingInput;
+            List<Common.ActivityTaskCompletedResult> activityStates;
+            Common.WorkflowExecutionStartedInput startingInput;
             ProcessHistory(task, out startingInput, out activityStates);
 
             //get the current request...
@@ -110,10 +110,10 @@ namespace CQRS.AWS.DecisionConsole
             //compare the "active" request actions that are not "complete" against the history
             //this line finds the "intersection" of those two lists
             //(need to filter this list down to only Simple Workflow actions. right now its working against all active actions)
-            List<Shared.ActivityTaskCompletedResult> results = activityStates.Join(RequestCurrent.RequestActions.Where(x => x.IsActive && !x.IsComplete).ToList(), a => a.RequestActionId, b => b.RequestActionId, (c, d) => c).ToList();
+            List<Common.ActivityTaskCompletedResult> results = activityStates.Join(RequestCurrent.RequestActions.Where(x => x.IsActive && !x.IsComplete).ToList(), a => a.RequestActionId, b => b.RequestActionId, (c, d) => c).ToList();
 
             //mark any "active" but not "complete" request actions as "complete"
-            foreach (Shared.ActivityTaskCompletedResult result in results)
+            foreach (Common.ActivityTaskCompletedResult result in results)
             {
                 _tracker.RequestActionComplete(result.RequestActionId);
             }
@@ -177,21 +177,21 @@ namespace CQRS.AWS.DecisionConsole
         /// <param name="task"></param>
         /// <param name="startingInput"></param>
         /// <param name="activityStates"></param>
-        void ProcessHistory(DecisionTask task, out Shared.WorkflowExecutionStartedInput startingInput, out List<Shared.ActivityTaskCompletedResult> activityStates)
+        void ProcessHistory(DecisionTask task, out Common.WorkflowExecutionStartedInput startingInput, out List<Common.ActivityTaskCompletedResult> activityStates)
         {
             startingInput = null;
-            activityStates = new List<Shared.ActivityTaskCompletedResult>();
+            activityStates = new List<Common.ActivityTaskCompletedResult>();
 
             Shared.HistoryIterator iterator = new Shared.HistoryIterator(this._swfClient, task);
             foreach (var evnt in iterator)
             {
                 if (evnt.EventType == EventType.WorkflowExecutionStarted)
                 {
-                    startingInput = Common.Utils.DeserializeFromJSON<Shared.WorkflowExecutionStartedInput>(evnt.WorkflowExecutionStartedEventAttributes.Input);
+                    startingInput = Common.Utils.DeserializeFromJSON<Common.WorkflowExecutionStartedInput>(evnt.WorkflowExecutionStartedEventAttributes.Input);
                 }
                 if (evnt.EventType == EventType.ActivityTaskCompleted)
                 {
-                    Shared.ActivityTaskCompletedResult state = Common.Utils.DeserializeFromJSON<Shared.ActivityTaskCompletedResult>(evnt.ActivityTaskCompletedEventAttributes.Result);
+                    Common.ActivityTaskCompletedResult state = Common.Utils.DeserializeFromJSON<Common.ActivityTaskCompletedResult>(evnt.ActivityTaskCompletedEventAttributes.Result);
                     activityStates.Add(state);
                 }
             }
@@ -217,10 +217,10 @@ namespace CQRS.AWS.DecisionConsole
         /// Helper method to create a decision for scheduling an activity
         /// </summary>
         /// <returns>Decision with ScheduleActivityTaskDecisionAttributes</returns>
-        Decision CreateActivityDecision(Shared.WorkflowExecutionStartedInput startingInput, int RequestActionId)
+        Decision CreateActivityDecision(Common.WorkflowExecutionStartedInput startingInput, int RequestActionId)
         {
             // setup the input for the activity task.
-            Shared.ActivityTaskCompletedResult state = new Shared.ActivityTaskCompletedResult
+            Common.ActivityTaskCompletedResult state = new Common.ActivityTaskCompletedResult
             {
                 StartingInput = startingInput,
                 RequestActionId = RequestActionId
@@ -237,7 +237,7 @@ namespace CQRS.AWS.DecisionConsole
                         Version = "5.0"
                     },
                     ActivityId = "MinimalWorkflowActivityType1" + DateTime.Now.TimeOfDay,
-                    Input = Common.Utils.SerializeToJSON<Shared.ActivityTaskCompletedResult>(state)
+                    Input = Common.Utils.SerializeToJSON<Common.ActivityTaskCompletedResult>(state)
                 }
             };
             Console.WriteLine(string.Format("Decision: Schedule Activity Task (RequestId {0} to RequestActionId {1})", state.StartingInput.RequestId, RequestActionId));
@@ -248,7 +248,7 @@ namespace CQRS.AWS.DecisionConsole
         /// Helper method to create a decision for completed workflow exeution. This happens once all the thumbnails have been created.
         /// </summary>
         /// <returns>Decision with ScheduleActivityTaskDecisionAttributes</returns>
-        Decision CreateCompleteWorkflowExecutionDecision(List<Shared.ActivityTaskCompletedResult> states)
+        Decision CreateCompleteWorkflowExecutionDecision(List<Common.ActivityTaskCompletedResult> states)
         {
             // Create a string listing all the images create.
             StringBuilder sb = new StringBuilder();

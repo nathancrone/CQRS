@@ -13,7 +13,7 @@ namespace CQRS.Repository.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "201601072258438_InitialCreate"; }
+            get { return "201601081558096_InitialCreate"; }
         }
         
         string IMigrationMetadata.Source

@@ -74,7 +74,7 @@ namespace CQRS.AWS.Activity1Console
                 ActivityTask task = Poll();
                 if (!String.IsNullOrEmpty(task.TaskToken))
                 {
-                    Shared.ActivityTaskCompletedResult activityState = ProcessTask(task.Input);
+                    Common.ActivityTaskCompletedResult activityState = ProcessTask(task.Input);
                     CompleteTask(task.TaskToken, activityState);
                 }
                 //Sleep to avoid aggressive polling
@@ -106,11 +106,11 @@ namespace CQRS.AWS.Activity1Console
         /// </summary>
         /// <param name="taskToken"></param>
         /// <param name="activityState"></param>
-        void CompleteTask(String taskToken, Shared.ActivityTaskCompletedResult activityState)
+        void CompleteTask(String taskToken, Common.ActivityTaskCompletedResult activityState)
         {
             RespondActivityTaskCompletedRequest request = new RespondActivityTaskCompletedRequest()
             {
-                Result = Common.Utils.SerializeToJSON<Shared.ActivityTaskCompletedResult>(activityState),
+                Result = Common.Utils.SerializeToJSON<Common.ActivityTaskCompletedResult>(activityState),
                 TaskToken = taskToken
             };
             RespondActivityTaskCompletedResponse response = swfClient.RespondActivityTaskCompleted(request);
@@ -123,9 +123,9 @@ namespace CQRS.AWS.Activity1Console
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        Shared.ActivityTaskCompletedResult ProcessTask(string input)
+        Common.ActivityTaskCompletedResult ProcessTask(string input)
         {
-            Shared.ActivityTaskCompletedResult activityState = Common.Utils.DeserializeFromJSON<Shared.ActivityTaskCompletedResult>(input);
+            Common.ActivityTaskCompletedResult activityState = Common.Utils.DeserializeFromJSON<Common.ActivityTaskCompletedResult>(input);
             Console.WriteLine(string.Format("Processing activity task RequestActionId {0}...", activityState.RequestActionId));
 
             ////var getRequest = new GetObjectRequest

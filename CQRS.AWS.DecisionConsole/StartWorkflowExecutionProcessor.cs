@@ -77,7 +77,7 @@ namespace CQRS.AWS.DecisionConsole
                     //s3Client.PutObject(putRequest);
 
                     // Setup the input for the workflow execution that tells the execution what bukcet and object to use.
-                    Shared.WorkflowExecutionStartedInput input = new Shared.WorkflowExecutionStartedInput
+                    Common.WorkflowExecutionStartedInput input = new Common.WorkflowExecutionStartedInput
                     {
                         RequestId = RequestId
                     };
@@ -87,7 +87,7 @@ namespace CQRS.AWS.DecisionConsole
                     swfClient.StartWorkflowExecution(new StartWorkflowExecutionRequest()
                     {
                         //Serialize input to a string
-                        Input = Common.Utils.SerializeToJSON<Shared.WorkflowExecutionStartedInput>(input),
+                        Input = Common.Utils.SerializeToJSON<Common.WorkflowExecutionStartedInput>(input),
                         //Unique identifier for the execution
                         WorkflowId = DateTime.Now.Ticks.ToString(),
                         Domain = Common.Constants.WFDomain,

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CQRS.AWS.Activity1Console.Shared
+namespace CQRS.AWS.Common
 {
-    class WorkflowExecutionStartedInput
+    public class WorkflowExecutionStartedInput
     {
         public int RequestId { get; set; }
     }

@@ -115,9 +115,7 @@
     <Compile Include="Activity1Worker.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Shared\ActivityTaskCompletedResult.cs" />
     <Compile Include="Shared\Constants.cs" />
-    <Compile Include="Shared\WorkflowExecutionStartedInput.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
