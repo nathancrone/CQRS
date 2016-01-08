@@ -45,13 +45,14 @@ namespace CQRS.Repository.Migrations
 
             context.ActionTypes.AddOrUpdate(
                 x => x.Name, 
-                new ActionType { ActionTypeId = 1, Name = "AWS Activity Complete" } 
+                new ActionType { ActionTypeId = 1, Name = "AWS Activity Complete" }, 
+                new ActionType { ActionTypeId = 2, Name = "AWS Timer Elapse" }
                 );
 
             Core.Models.Action a1 = new Core.Models.Action { ActionId = 1, ProcessId = 1, ActionTypeId = 1, Name = "AWS Activity Completed - 'Pending'", Description = "desc", Transitions = new List<Transition>() };
             Core.Models.Action a2 = new Core.Models.Action { ActionId = 2, ProcessId = 1, ActionTypeId = 1, Name = "AWS Activity Completed - 'Verified'", Description = "desc", Transitions = new List<Transition>() };
             Core.Models.Action a3 = new Core.Models.Action { ActionId = 3, ProcessId = 1, ActionTypeId = 1, Name = "AWS Activity Completed - 'Verified Ready'", Description = "desc", Transitions = new List<Transition>() };
-            //Core.Models.Action a4 = new Core.Models.Action { ActionId = 4, ProcessId = 1, ActionTypeId = 1, Name = "AWS Activity Completed - 'Verified Submitted'", Description = "desc", Transitions = new List<Transition>() };
+            Core.Models.Action a4 = new Core.Models.Action { ActionId = 4, ProcessId = 1, ActionTypeId = 2, Name = "AWS Timer Elapsed - '10 Seconds'", Description = "desc", Transitions = new List<Transition>() };
             ////Core.Models.Action a5 = new Core.Models.Action { ActionId = 5, ProcessId = 1, ActionTypeId = 1, Name = "The import sets moves entry state to 'TMO Approved'", Description = "desc", Transitions = new List<Transition>() };
             ////Core.Models.Action a6 = new Core.Models.Action { ActionId = 6, ProcessId = 1, ActionTypeId = 1, Name = "The import sets moves entry state to 'TMO Rejected'", Description = "desc", Transitions = new List<Transition>() };
             //Core.Models.Action a7 = new Core.Models.Action { ActionId = 7, ProcessId = 1, ActionTypeId = 1, Name = "AWS Activity Completed - 'TMO Approved'", Description = "desc", Transitions = new List<Transition>() };
@@ -69,7 +70,7 @@ namespace CQRS.Repository.Migrations
             a1.Transitions.Add(t1);
             a2.Transitions.Add(t2);
             a3.Transitions.Add(t3);
-            //a4.Transitions.Add(t4);
+            a4.Transitions.Add(t1);
             ////a5.Transitions.Add(t4);
             //a4.Transitions.Add(t5);
             ////a6.Transitions.Add(t5);
@@ -81,7 +82,7 @@ namespace CQRS.Repository.Migrations
             context.Actions.Add(a1);
             context.Actions.Add(a2);
             context.Actions.Add(a3);
-            //context.Actions.Add(a4);
+            context.Actions.Add(a4);
             ////context.Actions.Add(a5);
             ////context.Actions.Add(a6);
             //context.Actions.Add(a7);

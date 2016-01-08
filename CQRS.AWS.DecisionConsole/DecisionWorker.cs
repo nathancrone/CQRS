@@ -101,16 +101,17 @@ namespace CQRS.AWS.DecisionConsole
                 _tracker.RequestInitialize(startingInput.RequestId);
 
                 //the request should have a new state and actions...
-                RequestCurrent = _tracker.GetRequestWithActions(startingInput.RequestId);
-                
+                //RequestCurrent = _tracker.GetRequestWithActions(startingInput.RequestId);
+
                 //code to tell SWF to fire activity for the new state
-                decisions.Add(CreateActivityDecision(startingInput, RequestCurrent.RequestActions.Where(x => x.ActionTypeId == Common.Constants.AWSActivityTypeId && x.IsActive && !x.IsComplete).FirstOrDefault().RequestActionId ?? 0));
+                //decisions.Add(CreateActivityDecision(startingInput, RequestCurrent.RequestActions.Where(x => (x.ActionTypeId == Common.Constants.AWSActivityTypeId) && x.IsActive && !x.IsComplete).FirstOrDefault().RequestActionId ?? 0));
+                decisions = DecideHelper(startingInput, activityStates);
             }
 
-            //compare the "active" request actions that are not "complete" against the history
+            //compare the "active" SWF request actions that are not "complete" against the history
             //this line finds the "intersection" of those two lists
-            //(need to filter this list down to only Simple Workflow actions. right now its working against all active actions)
-            List<Common.ActivityTaskCompletedResult> results = activityStates.Join(RequestCurrent.RequestActions.Where(x => x.IsActive && !x.IsComplete).ToList(), a => a.RequestActionId, b => b.RequestActionId, (c, d) => c).ToList();
+            //(filter this list down to only Simple Workflow actions)
+            List<Common.ActivityTaskCompletedResult> results = activityStates.Join(RequestCurrent.RequestActions.Where(x => (x.ActionTypeId == Common.Constants.AWSActivityTypeId || x.ActionTypeId == 2) && x.IsActive && !x.IsComplete).ToList(), a => a.RequestActionId, b => b.RequestActionId, (c, d) => c).ToList();
 
             //mark any "active" but not "complete" request actions as "complete"
             foreach (Common.ActivityTaskCompletedResult result in results)
@@ -127,22 +128,56 @@ namespace CQRS.AWS.DecisionConsole
                 //follow the transition
                 _tracker.RequestFollowTransition(startingInput.RequestId, Transition.TransitionId);
 
-                //the request should have a new state and actions...
-                RequestCurrent = _tracker.GetRequestWithActions(startingInput.RequestId);
-                
-                RequestAction ActiveNotComplete = RequestCurrent.RequestActions.Where(x => x.ActionTypeId == Common.Constants.AWSActivityTypeId && x.IsActive && !x.IsComplete).FirstOrDefault();
-                
-                if (ActiveNotComplete != null)
-                {
-                    //code to tell SWF to fire activity for the new state
-                    decisions.Add(CreateActivityDecision(startingInput, ActiveNotComplete.RequestActionId ?? 0));
-                }
-                else
-                {
-                    Console.WriteLine("Workflow execution complete for " + startingInput.RequestId);
-                    //code to tell SWF to complete workflow execution
-                    decisions.Add(CreateCompleteWorkflowExecutionDecision(activityStates));
-                }
+                ////the request should have a new state and actions now...
+                //RequestCurrent = _tracker.GetRequestWithActions(startingInput.RequestId);
+
+                //IEnumerable<RequestAction> ActiveNotComplete = RequestCurrent.RequestActions.Where(x => (x.ActionTypeId == Common.Constants.AWSActivityTypeId || x.ActionTypeId == 2) && x.IsActive && !x.IsComplete);
+
+                ////if a request action was found that was "active" but not "complete" it must be run now
+                //if (ActiveNotComplete.Count() != 0)
+                //{
+
+                //    //iterate through the active but not complete actions...
+                //    foreach (RequestAction ra in ActiveNotComplete)
+                //    {
+
+                //        if (ra.ActionTypeId == 1) //if state completed...
+                //        {
+                //            //code to tell SWF to fire activity for the new state
+                //            decisions.Add(CreateActivityDecision(startingInput, ra.RequestActionId ?? 0));
+                //        }
+                //        if (ra.ActionTypeId == 2) //if timer
+                //        {
+                //            // setup the input for the activity task.
+                //            Common.ActivityTaskCompletedResult state = new Common.ActivityTaskCompletedResult
+                //            {
+                //                StartingInput = startingInput,
+                //                RequestActionId = ra.RequestActionId ?? 0
+                //            };
+
+                //            Decision decision = new Decision()
+                //            {
+                //                DecisionType = DecisionType.StartTimer,
+                //                StartTimerDecisionAttributes = new StartTimerDecisionAttributes()
+                //                {
+                //                    Control = Common.Utils.SerializeToJSON<Common.ActivityTaskCompletedResult>(state),
+                //                    StartToFireTimeout = "3",
+                //                    TimerId = DateTime.Now.Ticks.ToString()
+                //                }
+                //            };
+
+                //            decisions.Add(decision);
+                //        }
+
+                //    }
+                //}
+                //else
+                //{
+                //    Console.WriteLine("Workflow execution complete for " + startingInput.RequestId);
+                //    //code to tell SWF to complete workflow execution
+                //    decisions.Add(CreateCompleteWorkflowExecutionDecision(activityStates));
+                //}
+                decisions = DecideHelper(startingInput, activityStates);
             }
 
             //// Loop through all the diffrent image sizes the workflow will create and
@@ -170,6 +205,62 @@ namespace CQRS.AWS.DecisionConsole
             return decisions;
         }
 
+        List<Decision> DecideHelper(Common.WorkflowExecutionStartedInput startingInput, List<Common.ActivityTaskCompletedResult> activityStates)
+        {
+            List<Decision> decisions = new List<Decision>();
+
+            //the request should have a new state and actions...
+            Request RequestCurrent = _tracker.GetRequestWithActions(startingInput.RequestId);
+
+            IEnumerable<RequestAction> ActiveNotComplete = RequestCurrent.RequestActions.Where(x => (x.ActionTypeId == Common.Constants.AWSActivityTypeId || x.ActionTypeId == 2) && x.IsActive && !x.IsComplete);
+
+            //if a request action was found that was "active" but not "complete" it must be run now
+            if (ActiveNotComplete.Count() != 0)
+            {
+
+                //iterate through the active but not complete actions...
+                foreach (RequestAction ra in ActiveNotComplete)
+                {
+
+                    if (ra.ActionTypeId == 1) //if state completed...
+                    {
+                        //code to tell SWF to fire activity for the new state
+                        decisions.Add(CreateActivityDecision(startingInput, ra.RequestActionId ?? 0));
+                    }
+                    if (ra.ActionTypeId == 2) //if timer
+                    {
+                        // setup the input for the activity task.
+                        Common.ActivityTaskCompletedResult state = new Common.ActivityTaskCompletedResult
+                        {
+                            StartingInput = startingInput,
+                            RequestActionId = ra.RequestActionId ?? 0
+                        };
+
+                        Decision decision = new Decision()
+                        {
+                            DecisionType = DecisionType.StartTimer,
+                            StartTimerDecisionAttributes = new StartTimerDecisionAttributes()
+                            {
+                                Control = Common.Utils.SerializeToJSON<Common.ActivityTaskCompletedResult>(state),
+                                StartToFireTimeout = "3",
+                                TimerId = DateTime.Now.Ticks.ToString()
+                            }
+                        };
+
+                        decisions.Add(decision);
+                    }
+
+                }
+            }
+            else
+            {
+                Console.WriteLine("Workflow execution complete for " + startingInput.RequestId);
+                //code to tell SWF to complete workflow execution
+                decisions.Add(CreateCompleteWorkflowExecutionDecision(activityStates));
+            }
+            return decisions;
+        }
+
         /// <summary>
         /// Process the history of events to find all completed activity events and the start event. Using that we can find out
         /// what image is being resized and what images still need to be completed.
@@ -181,10 +272,20 @@ namespace CQRS.AWS.DecisionConsole
         {
             startingInput = null;
             activityStates = new List<Common.ActivityTaskCompletedResult>();
+            
+            Dictionary<long, Common.ActivityTaskCompletedResult> timerActivityStates = new Dictionary<long, Common.ActivityTaskCompletedResult>();
 
             Shared.HistoryIterator iterator = new Shared.HistoryIterator(this._swfClient, task);
             foreach (var evnt in iterator)
             {
+                if (evnt.EventType == EventType.TimerStarted)
+                {
+                    timerActivityStates.Add(long.Parse(evnt.TimerStartedEventAttributes.TimerId), Common.Utils.DeserializeFromJSON<Common.ActivityTaskCompletedResult>(evnt.TimerStartedEventAttributes.Control));
+                }
+                if (evnt.EventType == EventType.TimerFired)
+                {
+                    activityStates.Add(timerActivityStates[long.Parse(evnt.TimerFiredEventAttributes.TimerId)]);
+                }
                 if (evnt.EventType == EventType.WorkflowExecutionStarted)
                 {
                     startingInput = Common.Utils.DeserializeFromJSON<Common.WorkflowExecutionStartedInput>(evnt.WorkflowExecutionStartedEventAttributes.Input);
