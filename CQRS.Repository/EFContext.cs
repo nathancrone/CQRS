@@ -300,8 +300,8 @@ namespace CQRS.Repository
             modelBuilder.Entity<Transition>()
                 .HasMany(x => x.Actions)
                 .WithMany(x => x.Transitions)
-                .Map(c => c.MapLeftKey("ActionId")
-                .MapRightKey("TransitionId")
+                .Map(c => c.MapLeftKey("TransitionId")
+                .MapRightKey("ActionId")
                 .ToTable("TransitionAction"));
 
             modelBuilder.Entity<ActivityType>()

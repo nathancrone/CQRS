@@ -270,14 +270,14 @@ namespace CQRS.Repository.Migrations
                 "dbo.TransitionAction",
                 c => new
                     {
-                        ActionId = c.Int(nullable: false),
                         TransitionId = c.Int(nullable: false),
+                        ActionId = c.Int(nullable: false),
                     })
-                .PrimaryKey(t => new { t.ActionId, t.TransitionId })
-                .ForeignKey("dbo.Transitions", t => t.ActionId)
-                .ForeignKey("dbo.Actions", t => t.TransitionId)
-                .Index(t => t.ActionId)
-                .Index(t => t.TransitionId);
+                .PrimaryKey(t => new { t.TransitionId, t.ActionId })
+                .ForeignKey("dbo.Transitions", t => t.TransitionId)
+                .ForeignKey("dbo.Actions", t => t.ActionId)
+                .Index(t => t.TransitionId)
+                .Index(t => t.ActionId);
             
             CreateTable(
                 "dbo.TransitionActivity",
@@ -360,8 +360,8 @@ namespace CQRS.Repository.Migrations
             DropForeignKey("dbo.Transitions", "CurrentStateId", "dbo.States");
             DropForeignKey("dbo.TransitionActivity", "TransitionId", "dbo.Activities");
             DropForeignKey("dbo.TransitionActivity", "ActivityId", "dbo.Transitions");
-            DropForeignKey("dbo.TransitionAction", "TransitionId", "dbo.Actions");
-            DropForeignKey("dbo.TransitionAction", "ActionId", "dbo.Transitions");
+            DropForeignKey("dbo.TransitionAction", "ActionId", "dbo.Actions");
+            DropForeignKey("dbo.TransitionAction", "TransitionId", "dbo.Transitions");
             DropForeignKey("dbo.States", "StateTypeId", "dbo.StateTypes");
             DropForeignKey("dbo.StateActivity", "StateId", "dbo.Activities");
             DropForeignKey("dbo.StateActivity", "ActivityId", "dbo.States");
@@ -379,8 +379,8 @@ namespace CQRS.Repository.Migrations
             DropIndex("dbo.RequestStakeholder", new[] { "UserId" });
             DropIndex("dbo.TransitionActivity", new[] { "TransitionId" });
             DropIndex("dbo.TransitionActivity", new[] { "ActivityId" });
-            DropIndex("dbo.TransitionAction", new[] { "TransitionId" });
             DropIndex("dbo.TransitionAction", new[] { "ActionId" });
+            DropIndex("dbo.TransitionAction", new[] { "TransitionId" });
             DropIndex("dbo.StateActivity", new[] { "StateId" });
             DropIndex("dbo.StateActivity", new[] { "ActivityId" });
             DropIndex("dbo.RequestDatas", new[] { "RequestId" });

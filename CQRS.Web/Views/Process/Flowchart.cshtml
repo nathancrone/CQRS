@@ -579,7 +579,7 @@
                 });
 
                 modalInstance.result.then(function (selectedAction) {
-
+                    
                     $scope.selectedAction = selectedAction;
 
                     svcApp.saveAction($scope.selectedAction, transitionid).then(function (data) {
@@ -927,7 +927,7 @@
 
             var _saveAction = function (action, transitionid) {
 
-                action['Transitions'] = [{ ProcessId: $scope.selectedProcess.ProcessId, TransitionId: transitionid }];
+                action['Transitions'] = [{ ProcessId: action.ProcessId, TransitionId: transitionid }];
 
                 var req = {
                     method: 'POST',
