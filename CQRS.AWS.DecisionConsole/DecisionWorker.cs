@@ -1,20 +1,13 @@
-﻿using System;
+﻿using Amazon.SimpleWorkflow;
+using Amazon.SimpleWorkflow.Model;
+
+using CQRS.Core.Models;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Linq.Expressions;
-
-using Amazon;
-using Amazon.SimpleWorkflow;
-using Amazon.SimpleWorkflow.Model;
-
-using CQRS.AWS.DecisionConsole.Shared;
-
-using CQRS.Core;
-using CQRS.Core.Models;
-using CQRS.Repository;
 
 namespace CQRS.AWS.DecisionConsole
 {
@@ -23,12 +16,12 @@ namespace CQRS.AWS.DecisionConsole
         IAmazonSimpleWorkflow _swfClient = new AmazonSimpleWorkflowClient();
         System.Threading.Tasks.Task _task;
         CancellationToken _cancellationToken;
-        private WFTracking _tracker;
+        private Shared.WFTracking _tracker;
         //VirtualConsole _console;
 
         public DecisionWorker()
         {
-            _tracker = new WFTracking();
+            _tracker = new Shared.WFTracking();
             //this._console = console;
         }
 
@@ -74,10 +67,10 @@ namespace CQRS.AWS.DecisionConsole
             Console.WriteLine("Polling for decision task ...");
             PollForDecisionTaskRequest request = new PollForDecisionTaskRequest()
             {
-                Domain = Constants.WFDomain,
+                Domain = CQRS.AWS.Common.Constants.WFDomain,
                 TaskList = new TaskList()
                 {
-                    Name = Constants.WFTaskList
+                    Name = CQRS.AWS.DecisionConsole.Shared.Constants.WFTaskList
                 }
             };
             PollForDecisionTaskResponse response = _swfClient.PollForDecisionTask(request);
@@ -95,8 +88,8 @@ namespace CQRS.AWS.DecisionConsole
             Console.WriteLine("Processing decision task ...");
             List<Decision> decisions = new List<Decision>();
             
-            List<ActivityTaskCompletedResult> activityStates;
-            WorkflowExecutionStartedInput startingInput;
+            List<Shared.ActivityTaskCompletedResult> activityStates;
+            Shared.WorkflowExecutionStartedInput startingInput;
             ProcessHistory(task, out startingInput, out activityStates);
 
             //get the current request...
@@ -111,20 +104,19 @@ namespace CQRS.AWS.DecisionConsole
                 RequestCurrent = _tracker.GetRequestWithActions(startingInput.RequestId);
                 
                 //code to tell SWF to fire activity for the new state
-                decisions.Add(CreateActivityDecision(startingInput, RequestCurrent.RequestActions.Where(x => x.IsActive && !x.IsComplete).FirstOrDefault().RequestActionId ?? 0));
+                decisions.Add(CreateActivityDecision(startingInput, RequestCurrent.RequestActions.Where(x => x.ActionTypeId == Common.Constants.AWSActivityTypeId && x.IsActive && !x.IsComplete).FirstOrDefault().RequestActionId ?? 0));
             }
 
             //compare the "active" request actions that are not "complete" against the history
             //this line finds the "intersection" of those two lists
             //(need to filter this list down to only Simple Workflow actions. right now its working against all active actions)
-            List<ActivityTaskCompletedResult> results = activityStates.Join(RequestCurrent.RequestActions.Where(x => x.IsActive && !x.IsComplete).ToList(), a => a.RequestActionId, b => b.RequestActionId, (c, d) => c).ToList();
+            List<Shared.ActivityTaskCompletedResult> results = activityStates.Join(RequestCurrent.RequestActions.Where(x => x.IsActive && !x.IsComplete).ToList(), a => a.RequestActionId, b => b.RequestActionId, (c, d) => c).ToList();
 
             //mark any "active" but not "complete" request actions as "complete"
-            foreach (ActivityTaskCompletedResult result in results)
+            foreach (Shared.ActivityTaskCompletedResult result in results)
             {
                 _tracker.RequestActionComplete(result.RequestActionId);
             }
-
             
             //check whether the request's actions have reached a point where a transition can be followed...
             Transition Transition = _tracker.GetCompletedTransitionForRequest(startingInput.RequestId);
@@ -138,7 +130,7 @@ namespace CQRS.AWS.DecisionConsole
                 //the request should have a new state and actions...
                 RequestCurrent = _tracker.GetRequestWithActions(startingInput.RequestId);
                 
-                RequestAction ActiveNotComplete = RequestCurrent.RequestActions.Where(x => x.IsActive && !x.IsComplete).FirstOrDefault();
+                RequestAction ActiveNotComplete = RequestCurrent.RequestActions.Where(x => x.ActionTypeId == Common.Constants.AWSActivityTypeId && x.IsActive && !x.IsComplete).FirstOrDefault();
                 
                 if (ActiveNotComplete != null)
                 {
@@ -151,22 +143,7 @@ namespace CQRS.AWS.DecisionConsole
                     //code to tell SWF to complete workflow execution
                     decisions.Add(CreateCompleteWorkflowExecutionDecision(activityStates));
                 }
-
             }
-            
-
-            //State StateCurrent = _tracker.GetState(RequestCurrent.CurrentStateId ?? 0);
-
-            //if (StateCurrent.TransitionsFrom.Count() > 0) 
-            //{
-
-            //}
-            //else //if there are no transitions from current state to another state...
-            //{
-            //    Console.WriteLine("Workflow execution complete for " + startingInput.RequestId);
-            //    decisions.Add(CreateCompleteWorkflowExecutionDecision(activityStates));
-            //}
-
 
             //// Loop through all the diffrent image sizes the workflow will create and
             //// when we find one missing create that activity task for the missing image.
@@ -200,21 +177,21 @@ namespace CQRS.AWS.DecisionConsole
         /// <param name="task"></param>
         /// <param name="startingInput"></param>
         /// <param name="activityStates"></param>
-        void ProcessHistory(DecisionTask task, out WorkflowExecutionStartedInput startingInput, out List<ActivityTaskCompletedResult> activityStates)
+        void ProcessHistory(DecisionTask task, out Shared.WorkflowExecutionStartedInput startingInput, out List<Shared.ActivityTaskCompletedResult> activityStates)
         {
             startingInput = null;
-            activityStates = new List<ActivityTaskCompletedResult>();
+            activityStates = new List<Shared.ActivityTaskCompletedResult>();
 
-            HistoryIterator iterator = new HistoryIterator(this._swfClient, task);
+            Shared.HistoryIterator iterator = new Shared.HistoryIterator(this._swfClient, task);
             foreach (var evnt in iterator)
             {
                 if (evnt.EventType == EventType.WorkflowExecutionStarted)
                 {
-                    startingInput = Utils.DeserializeFromJSON<WorkflowExecutionStartedInput>(evnt.WorkflowExecutionStartedEventAttributes.Input);
+                    startingInput = Common.Utils.DeserializeFromJSON<Shared.WorkflowExecutionStartedInput>(evnt.WorkflowExecutionStartedEventAttributes.Input);
                 }
                 if (evnt.EventType == EventType.ActivityTaskCompleted)
                 {
-                    ActivityTaskCompletedResult state = Utils.DeserializeFromJSON<ActivityTaskCompletedResult>(evnt.ActivityTaskCompletedEventAttributes.Result);
+                    Shared.ActivityTaskCompletedResult state = Common.Utils.DeserializeFromJSON<Shared.ActivityTaskCompletedResult>(evnt.ActivityTaskCompletedEventAttributes.Result);
                     activityStates.Add(state);
                 }
             }
@@ -240,10 +217,10 @@ namespace CQRS.AWS.DecisionConsole
         /// Helper method to create a decision for scheduling an activity
         /// </summary>
         /// <returns>Decision with ScheduleActivityTaskDecisionAttributes</returns>
-        Decision CreateActivityDecision(WorkflowExecutionStartedInput startingInput, int RequestActionId)
+        Decision CreateActivityDecision(Shared.WorkflowExecutionStartedInput startingInput, int RequestActionId)
         {
             // setup the input for the activity task.
-            ActivityTaskCompletedResult state = new ActivityTaskCompletedResult
+            Shared.ActivityTaskCompletedResult state = new Shared.ActivityTaskCompletedResult
             {
                 StartingInput = startingInput,
                 RequestActionId = RequestActionId
@@ -260,7 +237,7 @@ namespace CQRS.AWS.DecisionConsole
                         Version = "5.0"
                     },
                     ActivityId = "MinimalWorkflowActivityType1" + DateTime.Now.TimeOfDay,
-                    Input = Utils.SerializeToJSON<ActivityTaskCompletedResult>(state)
+                    Input = Common.Utils.SerializeToJSON<Shared.ActivityTaskCompletedResult>(state)
                 }
             };
             Console.WriteLine(string.Format("Decision: Schedule Activity Task (RequestId {0} to RequestActionId {1})", state.StartingInput.RequestId, RequestActionId));
@@ -271,7 +248,7 @@ namespace CQRS.AWS.DecisionConsole
         /// Helper method to create a decision for completed workflow exeution. This happens once all the thumbnails have been created.
         /// </summary>
         /// <returns>Decision with ScheduleActivityTaskDecisionAttributes</returns>
-        Decision CreateCompleteWorkflowExecutionDecision(List<ActivityTaskCompletedResult> states)
+        Decision CreateCompleteWorkflowExecutionDecision(List<Shared.ActivityTaskCompletedResult> states)
         {
             // Create a string listing all the images create.
             StringBuilder sb = new StringBuilder();

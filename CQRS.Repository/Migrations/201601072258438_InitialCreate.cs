@@ -216,6 +216,7 @@ namespace CQRS.Repository.Migrations
                         RequestActionId = c.Int(nullable: false, identity: true),
                         RequestId = c.Int(nullable: false),
                         ActionId = c.Int(),
+                        ActionTypeId = c.Int(),
                         TransitionId = c.Int(),
                         IsActive = c.Boolean(nullable: false),
                         IsComplete = c.Boolean(nullable: false),

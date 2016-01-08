@@ -127,7 +127,6 @@
     <Compile Include="Shared\ActivityTaskCompletedResult.cs" />
     <Compile Include="Shared\Constants.cs" />
     <Compile Include="Shared\HistoryIterator.cs" />
-    <Compile Include="Shared\Utils.cs" />
     <Compile Include="Shared\WFTracking.cs" />
     <Compile Include="Shared\WorkflowExecutionStartedInput.cs" />
     <Compile Include="StartWorkflowExecutionProcessor.cs" />
@@ -167,6 +166,10 @@
     <Analyzer Include="..\packages\AWSSDK.SimpleWorkflow.3.1.1.3\analyzers\dotnet\cs\AWSSDK.SimpleWorkflow.CodeAnalysis.dll" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CQRS.AWS.Common\CQRS.AWS.Common.csproj">
+      <Project>{f16dd326-3dc0-48eb-89dd-84a6801209b5}</Project>
+      <Name>CQRS.AWS.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CQRS.Core\CQRS.Core.csproj">
       <Project>{26a1cd52-0a46-4ecd-bdbc-fb6a2406d441}</Project>
       <Name>CQRS.Core</Name>

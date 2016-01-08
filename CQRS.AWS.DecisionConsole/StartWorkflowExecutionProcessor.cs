@@ -14,8 +14,6 @@ using CQRS.Core;
 using CQRS.Core.Models;
 using CQRS.Repository;
 
-using CQRS.AWS.DecisionConsole.Shared;
-
 //using Amazon.S3;
 //using Amazon.S3.Model;
 
@@ -79,7 +77,7 @@ namespace CQRS.AWS.DecisionConsole
                     //s3Client.PutObject(putRequest);
 
                     // Setup the input for the workflow execution that tells the execution what bukcet and object to use.
-                    WorkflowExecutionStartedInput input = new WorkflowExecutionStartedInput
+                    Shared.WorkflowExecutionStartedInput input = new Shared.WorkflowExecutionStartedInput
                     {
                         RequestId = RequestId
                     };
@@ -89,14 +87,14 @@ namespace CQRS.AWS.DecisionConsole
                     swfClient.StartWorkflowExecution(new StartWorkflowExecutionRequest()
                     {
                         //Serialize input to a string
-                        Input = Utils.SerializeToJSON<WorkflowExecutionStartedInput>(input),
+                        Input = Common.Utils.SerializeToJSON<Shared.WorkflowExecutionStartedInput>(input),
                         //Unique identifier for the execution
                         WorkflowId = DateTime.Now.Ticks.ToString(),
-                        Domain = Constants.WFDomain,
+                        Domain = Common.Constants.WFDomain,
                         WorkflowType = new WorkflowType()
                         {
-                            Name = Constants.WFWorkflow,
-                            Version = Constants.WFWorkflowVersion
+                            Name = Shared.Constants.WFWorkflow,
+                            Version = Shared.Constants.WFWorkflowVersion
                         }
                     });
                 }

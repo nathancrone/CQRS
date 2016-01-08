@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 
-namespace CQRS.AWS.Activity1Console.Shared
+namespace CQRS.AWS.Common
 {
-    class Utils
+    public class Utils
     {
         public static T DeserializeFromJSON<T>(string json)
         {

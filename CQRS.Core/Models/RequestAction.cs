@@ -8,6 +8,7 @@ namespace CQRS.Core.Models
         public int? RequestActionId { get; set; }
         public int? RequestId { get; set; }
         public int? ActionId { get; set; }
+        public int? ActionTypeId { get; set; }
         public int? TransitionId { get; set; }
 
         public bool IsActive { get; set; }

@@ -63,7 +63,7 @@ namespace CQRS.AWS.DecisionConsole.Shared
         {
             PollForDecisionTaskRequest request = new PollForDecisionTaskRequest()
             {
-                Domain = Constants.WFDomain,
+                Domain = Common.Constants.WFDomain,
                 NextPageToken = lastResponse.NextPageToken,
                 TaskList = new TaskList()
                 {

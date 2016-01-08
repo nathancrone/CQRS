@@ -117,7 +117,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Shared\ActivityTaskCompletedResult.cs" />
     <Compile Include="Shared\Constants.cs" />
-    <Compile Include="Shared\Utils.cs" />
     <Compile Include="Shared\WorkflowExecutionStartedInput.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -153,5 +152,11 @@
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\AWSSDK.SimpleWorkflow.3.1.1.3\analyzers\dotnet\cs\AWSSDK.SimpleWorkflow.CodeAnalysis.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CQRS.AWS.Common\CQRS.AWS.Common.csproj">
+      <Project>{f16dd326-3dc0-48eb-89dd-84a6801209b5}</Project>
+      <Name>CQRS.AWS.Common</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

@@ -31,7 +31,8 @@ using Amazon.SimpleWorkflow.Model;
 //using Amazon.S3;
 //using Amazon.S3.Model;
 
-using CQRS.AWS.Activity1Console.Shared;
+//using CQRS.AWS.Common;
+//using CQRS.AWS.Activity1Console.Shared;
 
 namespace CQRS.AWS.Activity1Console
 {
@@ -73,7 +74,7 @@ namespace CQRS.AWS.Activity1Console
                 ActivityTask task = Poll();
                 if (!String.IsNullOrEmpty(task.TaskToken))
                 {
-                    ActivityTaskCompletedResult activityState = ProcessTask(task.Input);
+                    Shared.ActivityTaskCompletedResult activityState = ProcessTask(task.Input);
                     CompleteTask(task.TaskToken, activityState);
                 }
                 //Sleep to avoid aggressive polling
@@ -90,10 +91,10 @@ namespace CQRS.AWS.Activity1Console
             Console.WriteLine("Polling for activity task ...");
             PollForActivityTaskRequest request = new PollForActivityTaskRequest()
             {
-                Domain = Constants.WFDomain,
+                Domain = Common.Constants.WFDomain,
                 TaskList = new TaskList()
                 {
-                    Name = Constants.WFTaskList
+                    Name = Shared.Constants.WFTaskList
                 }
             };
             PollForActivityTaskResponse response = swfClient.PollForActivityTask(request);
@@ -105,11 +106,11 @@ namespace CQRS.AWS.Activity1Console
         /// </summary>
         /// <param name="taskToken"></param>
         /// <param name="activityState"></param>
-        void CompleteTask(String taskToken, ActivityTaskCompletedResult activityState)
+        void CompleteTask(String taskToken, Shared.ActivityTaskCompletedResult activityState)
         {
             RespondActivityTaskCompletedRequest request = new RespondActivityTaskCompletedRequest()
             {
-                Result = Utils.SerializeToJSON<ActivityTaskCompletedResult>(activityState),
+                Result = Common.Utils.SerializeToJSON<Shared.ActivityTaskCompletedResult>(activityState),
                 TaskToken = taskToken
             };
             RespondActivityTaskCompletedResponse response = swfClient.RespondActivityTaskCompleted(request);
@@ -122,9 +123,9 @@ namespace CQRS.AWS.Activity1Console
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        ActivityTaskCompletedResult ProcessTask(string input)
+        Shared.ActivityTaskCompletedResult ProcessTask(string input)
         {
-            ActivityTaskCompletedResult activityState = Utils.DeserializeFromJSON<ActivityTaskCompletedResult>(input);
+            Shared.ActivityTaskCompletedResult activityState = Common.Utils.DeserializeFromJSON<Shared.ActivityTaskCompletedResult>(input);
             Console.WriteLine(string.Format("Processing activity task RequestActionId {0}...", activityState.RequestActionId));
 
             ////var getRequest = new GetObjectRequest
